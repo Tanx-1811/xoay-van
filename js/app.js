@@ -437,6 +437,15 @@
     U.toast(t('Đã xóa {name}', { name: names.join(', ') }));
   };
 
+  // Entries of wheel i changed outside the editor (winner removed or hidden): show the new list in the
+  // editor too, otherwise the next keystroke there would bring the removed names back.
+  function changedOutsideEditor(i) {
+    App.afterEntriesChanged(i);
+    if (i !== App.activeIndex()) return;
+    if (App.cfg(i).isAdvanced) { if (App.renderAdvanced) App.renderAdvanced(); }
+    else if (App.rerenderBasic) App.rerenderBasic();
+  }
+
   $('#btnWinnerRemove').addEventListener('click', function () {
     if (!pending) return;
     var names = [];
@@ -444,7 +453,7 @@
       var cfg = App.cfg(q.wheelIndex);
       var i = cfg.entries.findIndex(function (e) { return e.id === q.entry.id; });
       if (i >= 0) { cfg.entries.splice(i, 1); names.push(q.entry.text); }
-      App.afterEntriesChanged(q.wheelIndex);
+      changedOutsideEditor(q.wheelIndex);
     });
     U.closeDialog('dlgWinner');
     App.removedFeedback(names, pending.lead);
@@ -456,7 +465,7 @@
       var cfg = App.cfg(q.wheelIndex), tt = String(q.entry.text).trim();
       cfg.entries = cfg.entries.filter(function (e) { return !(String(e.text).trim() === tt || (q.entry.image && e.image === q.entry.image)); });
       names.push(q.entry.text);
-      App.afterEntriesChanged(q.wheelIndex);
+      changedOutsideEditor(q.wheelIndex);
     });
     U.closeDialog('dlgWinner');
     App.removedFeedback(names, pending.lead);
@@ -466,7 +475,7 @@
     pending.queue.forEach(function (q) {
       var e = App.cfg(q.wheelIndex).entries.find(function (x) { return x.id === q.entry.id; });
       if (e) e.enabled = false;
-      App.afterEntriesChanged(q.wheelIndex);
+      changedOutsideEditor(q.wheelIndex);
     });
     U.closeDialog('dlgWinner');
   });
@@ -483,7 +492,7 @@
       tst.close();
       var list = App.group.wheelConfigs[i] === cfg ? cfg.entries : null;
       var k = list ? list.findIndex(function (e) { return e.id === entry.id; }) : -1;
-      if (k >= 0) { list.splice(k, 1); App.afterEntriesChanged(i); App.removedFeedback([entry.text], cfg); }
+      if (k >= 0) { list.splice(k, 1); changedOutsideEditor(i); App.removedFeedback([entry.text], cfg); }
     }, 1000);
   }
 
@@ -762,12 +771,19 @@
     if (!shared) App.persist();
     window.addEventListener('resize', U.debounce(App.layout, 60));
     if (App.loadFontsInUse) App.loadFontsInUse();
-    // Re-measure wheel text once Quicksand (incl. the Vietnamese subset) has loaded.
+    // Wheel labels are measured with Quicksand (incl. its Vietnamese subset). The font stylesheet loads
+    // without blocking the page, so measure again whenever it or any web font finishes loading.
     if (document.fonts && document.fonts.load) {
-      Promise.all(['400 24px Quicksand', '600 16px "Be Vietnam Pro"'].map(function (f) { return document.fonts.load(f, 'AaĐđƯưẠạ'); })).then(function () {
+      var refit = U.debounce(function () {
         Wheel.clearMeasureCache();
         App.wheels.forEach(function (w, i) { App.refreshWheel(i); });
-      }, function () {});
+      }, 80);
+      var loadFonts = function () {
+        Promise.all(['400 24px Quicksand', '600 16px "Be Vietnam Pro"'].map(function (f) { return document.fonts.load(f, 'AaĐđƯưẠạ'); })).then(refit, function () {});
+      };
+      loadFonts();
+      if ($('#fontsCss')) $('#fontsCss').addEventListener('load', loadFonts);
+      if (document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', refit);
     }
     if (App.afterBoot) App.afterBoot();
   }

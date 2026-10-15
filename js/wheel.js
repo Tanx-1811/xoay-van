@@ -176,7 +176,7 @@
     this.all = []; this.visible = []; this.slices = [];
     this.indexAtPointer = 0;
     this.cache = null; this.overlay = null; this.sprites = new Map();
-    this.raf = 0; this.last = 0; this.delta = 0; this.running = false; this.odd = false;
+    this.raf = 0; this.last = 0; this.delta = 0; this.running = false;
     this.visibleOnScreen = true;
     this.destroyed = false;
     this.dragging = false; this.dragEndAt = 0;
@@ -392,14 +392,14 @@
     this.raf = requestAnimationFrame(this.frame);
   };
 
-  // Physics runs at a fixed 60 Hz; we only draw when it moved. The slow idle turn is drawn at 30 fps.
+  // Physics runs at a fixed 60 Hz; every display frame is drawn, with the angle carried forward by the
+  // time since the last physics step so the motion stays smooth at 120/144 Hz and with uneven frames.
   Wheel.prototype.onFrame = function (t) {
     if (this.destroyed) return;
     if (!this.last) this.delta = STEP_MS; else this.delta += t - this.last;
     this.last = t;
-    var ticked = false;
-    while (this.delta >= STEP_MS) { this.tick(); this.delta -= STEP_MS; ticked = true; }
-    if (ticked && (this.phase !== DEMO || (this.odd = !this.odd))) this.draw();
+    while (this.delta >= STEP_MS) { this.tick(); this.delta -= STEP_MS; }
+    this.draw();
     var idle = this.phase === STOPPED || (!this.visibleOnScreen && this.phase === DEMO);
     if (idle) { this.running = false; return; }
     this.raf = requestAnimationFrame(this.frame);
@@ -431,7 +431,8 @@
     }
     c.addEventListener('pointerdown', function (e) {
       if (self.isSpinning() || (e.pointerType === 'mouse' && e.button !== 0)) return;
-      drag = { id: e.pointerId, a: angleOf(e), x: e.clientX, y: e.clientY, moved: false, total: 0, samples: [{ t: e.timeStamp, total: 0 }] };
+      // fingers wobble more than a mouse before a tap counts as a drag
+      drag = { id: e.pointerId, a: angleOf(e), x: e.clientX, y: e.clientY, t0: e.timeStamp, slop: e.pointerType === 'mouse' ? 6 : 14, moved: false, total: 0, samples: [{ t: e.timeStamp, total: 0 }] };
     });
     c.addEventListener('pointermove', function (e) {
       if (!drag || e.pointerId !== drag.id || self.isSpinning()) return;
@@ -440,7 +441,7 @@
       drag.a = a;
       drag.total += d;
       if (!drag.moved) {
-        if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 8) return;
+        if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < drag.slop) return;
         drag.moved = true;
         self.dragging = true;
         try { c.setPointerCapture(e.pointerId); } catch (err) {}
@@ -462,10 +463,13 @@
       if (!d.moved) return;
       self.dragging = false;
       self.dragEndAt = now();
+      if (e.type !== 'pointerup' || !self.hooks.onFlick) return;
+      // a short, small wobble was meant as a tap: spin as a click would
+      if (Math.abs(d.total) < 0.08 && e.timeStamp - d.t0 < 350) { self.hooks.onFlick(1); return; }
       var s0 = d.samples[0], s1 = d.samples[d.samples.length - 1];
       var dt = (s1.t - s0.t) / 1000;
       var v = dt > 0 && e.timeStamp - s1.t < 80 ? (s1.total - s0.total) / dt : 0;
-      if (e.type === 'pointerup' && Math.abs(v) >= FLICK && self.hooks.onFlick) self.hooks.onFlick(v > 0 ? 1 : -1);
+      if (Math.abs(v) >= FLICK) self.hooks.onFlick(v > 0 ? 1 : -1);
     }
     c.addEventListener('pointerup', end);
     c.addEventListener('pointercancel', end);
@@ -672,8 +676,10 @@
     if (!this.overlay) this.buildOverlay();
     g.setTransform(1, 0, 0, 1, 0, 0);
     g.clearRect(0, 0, px, px);
+    var angle = this.angle;
+    if (this.running && this.speed) angle += this.dir * this.speed * Math.min(1, this.delta / STEP_MS);
     g.save();
-    g.translate(px / 2, px / 2); g.rotate(this.angle);
+    g.translate(px / 2, px / 2); g.rotate(angle);
     g.drawImage(this.cache, -px / 2, -px / 2);
     g.restore();
     g.drawImage(this.overlay, 0, 0);

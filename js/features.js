@@ -135,7 +135,16 @@
   });
 
   // ================================================================ offline: cache the app with a service worker
+  // Only on the published site. On localhost a service worker would stay on that port and get in the way of
+  // other projects served there later (5173 is also Vite's port), so it is removed there unless ?sw=1.
+  var localHost = /^(localhost|127\.0\.0\.1|\[::1\]|.+\.localhost)$/.test(location.hostname);
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
-    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+    window.addEventListener('load', function () {
+      if (!localHost || /[?&]sw=1/.test(location.search)) { navigator.serviceWorker.register('sw.js').catch(function () {}); return; }
+      navigator.serviceWorker.getRegistrations().then(function (regs) {
+        regs.forEach(function (r) { var w = r.active || r.waiting || r.installing; if (w && /\/sw\.js$/.test(w.scriptURL)) r.unregister(); });
+      }).catch(function () {});
+      if (window.caches) caches.keys().then(function (keys) { keys.forEach(function (k) { if (/^xoay-van/.test(k)) caches.delete(k); }); }).catch(function () {});
+    });
   }
 })();

@@ -83,6 +83,8 @@ img { max-width: 100%; }
 kbd { font: 500 12px var(--font); padding: 1px 6px; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; }
 code { font-family: ui-monospace, Consolas, monospace; font-size: .92em; }
 [hidden] { display: none !important; }
+/* keep room for icons while the icon font is still loading, so buttons don't shift when it arrives */
+.tb-btn > i, .btn > i, .menu-item > i, .link-plain > i, .icon-btn > i, .round-btn > i { display: inline-block; min-width: 1em; text-align: center; }
 :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .grow { flex: 1; min-width: 0; }
 .skip-link { position: absolute; left: 12px; top: -48px; z-index: 100; padding: 8px 12px; border-radius: var(--radius); background: var(--primary); color: #fff; text-decoration: none; font-weight: 500; }
