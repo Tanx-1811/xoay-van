@@ -34,8 +34,9 @@
     $('#cfgAfterSound').innerHTML = D.AFTER_SOUNDS.map(function (s) { return '<option value="' + s[0] + '">' + U.esc(t(s[1])) + '</option>'; }).join('');
     $('#cfgHubSize').innerHTML = Object.keys(D.HUB_SIZES).map(function (k) { return '<option>' + k + '</option>'; }).join('');
     $('#cfgTextDisplay').innerHTML = D.TEXT_DISPLAY.map(function (o) { return '<option value="' + o[0] + '">' + U.esc(t(o[1])) + '</option>'; }).join('');
+    $('#cfgFont').innerHTML = D.WHEEL_FONTS.map(function (f) { return '<option value="' + U.esc(f[0]) + '">' + U.esc(f[0] || t('Quicksand (mặc định)')) + '</option>'; }).join('');
     $('#themesMenu').innerHTML = D.THEMES.map(function (g) {
-      return '<div class="menu-group">' + U.esc(g.group) + '</div>' + g.themes.map(function (th) {
+      return '<div class="menu-group">' + U.esc(t(g.group)) + '</div>' + g.themes.map(function (th) {
         return '<button type="button" class="menu-item theme-item" data-theme="' + U.esc(th[0]) + '"><span>' + U.esc(th[0]) + '</span>' + themeSwatch(th[1]) + '</button>';
       }).join('');
     }).join('');
@@ -160,6 +161,7 @@
     else if (el.type === 'color') c[k] = el.value.toUpperCase();
     else c[k] = el.value;
     if (k === 'duringSpinSound' || k === 'afterSpinSound') stopPreview();
+    if (k === 'font' && App.loadWheelFont) App.loadWheelFont(c.font);
     syncCustomize();
   }
   $('#dlgCustomize').addEventListener('input', onCfgInput);
@@ -209,7 +211,7 @@
   function saveCenterText() {
     var c = cust.cfg, txt = $('#centerTextInput').value.trim().slice(0, 20);
     if (!txt) return;
-    var fam = c.font ? c.font + ', Quicksand, sans-serif' : 'Quicksand, sans-serif';
+    var fam = Wheel.fontStack(c.font);
     c.centerText = txt; c.pictureType = 'text'; c.customPictureDataUri = U.centerTextImage(txt, fam);
     if (c.hubSize === 'S') c.hubSize = 'L';
     U.closeMenus();
@@ -267,6 +269,7 @@
     App.refreshWheel(cust.i);
     App.renderEditor();
     App.persist();
+    if (App.loadFontsInUse) App.loadFontsInUse();
     U.closeDialog('dlgCustomize', 'ok');
   });
   $('#dlgCustomize').addEventListener('close', function () { stopPreview(); U.closeMenus(); cust = null; });
@@ -558,7 +561,54 @@
     if (url.length > 8000) warn.push(t('Liên kết này rất dài, một số ứng dụng có thể cắt mất một phần.'));
     $('#shareWarn').textContent = warn.join(' ');
     $('#shareWarn').hidden = !warn.length;
+    $('#btnNativeShare').hidden = !navigator.share;
+    renderQr(url);
   }
+
+  // QR code of the share link (qrcode-generator from cdnjs, loaded the first time it is needed).
+  var qrLib = null, lastQr = null;
+  function loadQrLib() {
+    if (window.qrcode) return Promise.resolve(window.qrcode);
+    if (!qrLib) {
+      qrLib = new Promise(function (resolve, reject) {
+        var sc = document.createElement('script');
+        sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
+        sc.onload = function () { resolve(window.qrcode); };
+        sc.onerror = function () { qrLib = null; reject(new Error('QR library unavailable')); };
+        document.head.appendChild(sc);
+      });
+    }
+    return qrLib;
+  }
+  function renderQr(url) {
+    var box = $('#shareQr');
+    box.hidden = true; box.innerHTML = ''; lastQr = null;
+    $('#btnDownloadQr').hidden = true;
+    if (url.length > 1500) return; // too dense to scan from a screen
+    loadQrLib().then(function (qrcode) {
+      var qr = qrcode(0, 'L');
+      qr.addData(url);
+      qr.make();
+      lastQr = qr;
+      box.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true, alt: t('Mã QR của liên kết') });
+      box.hidden = false;
+      $('#btnDownloadQr').hidden = false;
+    }).catch(function () {});
+  }
+  $('#btnDownloadQr').addEventListener('click', function () {
+    if (!lastQr) return;
+    var n = lastQr.getModuleCount(), cell = 10, pad = 4, c = document.createElement('canvas');
+    c.width = c.height = (n + pad * 2) * cell;
+    var g = c.getContext('2d');
+    g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, c.width, c.height);
+    g.fillStyle = '#000000';
+    for (var r = 0; r < n; r++) for (var k = 0; k < n; k++) if (lastQr.isDark(r, k)) g.fillRect((k + pad) * cell, (r + pad) * cell, cell, cell);
+    c.toBlob(function (b) { if (b) U.download((App.cfg(0).title || 'xoay-van') + ' QR.png', b); });
+  });
+  $('#btnNativeShare').addEventListener('click', function () {
+    if (!navigator.share || !share || !share.url) return;
+    navigator.share({ title: App.cfg(0).title || 'Xoay Vần', url: share.url }).catch(function () {});
+  });
   $('#btnCopyShare').addEventListener('click', async function () {
     var v = $('#shareUrl').value;
     try { await navigator.clipboard.writeText(v); }
@@ -570,7 +620,7 @@
   App.restoreCenterText = function () {
     App.group.wheelConfigs.forEach(function (c, i) {
       if (c.pictureType === 'text' && c.centerText && !c.customPictureDataUri) {
-        c.customPictureDataUri = U.centerTextImage(c.centerText, c.font ? c.font + ', Quicksand, sans-serif' : 'Quicksand, sans-serif');
+        c.customPictureDataUri = U.centerTextImage(c.centerText, Wheel.fontStack(c.font));
         App.refreshWheel(i);
       }
     });
@@ -624,12 +674,12 @@
     $('#prefLangTip').checked = p.showLanguageTip;
     var sel = $('#prefNewTheme');
     sel.innerHTML = '<option value="">' + U.esc(t('Mặc định')) + '</option>' + D.THEMES.map(function (g) {
-      return '<optgroup label="' + U.esc(g.group) + '">' + g.themes.map(function (th) { return '<option value="' + U.esc(th[0]) + '">' + U.esc(th[0]) + '</option>'; }).join('') + '</optgroup>';
+      return '<optgroup label="' + U.esc(t(g.group)) + '">' + g.themes.map(function (th) { return '<option value="' + U.esc(th[0]) + '">' + U.esc(th[0]) + '</option>'; }).join('') + '</optgroup>';
     }).join('');
     sel.value = p.newWheelTheme || '';
     U.openDialog('dlgPreferences');
   };
-  $$('input[name="appTheme"]').forEach(function (r) { r.addEventListener('change', function () { App.prefs.appTheme = r.value; App.savePrefs(); App.applyTheme(); App.wheels.forEach(function (w, i) { App.refreshWheel(i); }); }); });
+  $$('input[name="appTheme"]').forEach(function (r) { r.addEventListener('change', function () { App.prefs.appTheme = r.value; App.savePrefs(); App.applyTheme(); }); });
   $('#prefOverlay').addEventListener('change', function () { App.prefs.showWheelOverlay = this.checked; App.savePrefs(); App.wheels.forEach(function (w, i) { App.refreshWheel(i); }); });
   $('#prefLangTip').addEventListener('change', function () { App.prefs.showLanguageTip = this.checked; App.savePrefs(); });
   $('#prefNewTheme').addEventListener('change', function () { App.prefs.newWheelTheme = this.value; App.savePrefs(); });

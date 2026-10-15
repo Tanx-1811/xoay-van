@@ -1,5 +1,5 @@
-/* Confetti on a full-window canvas. Same burst pattern as the original:
-   100 particles every 200 ms for 5 s, spread 360°, start velocity 30, 60 ticks, random origin, wheel colors. */
+/* Confetti on a full-window canvas: a burst of particles every 250 ms for 5 s, spread 360°,
+   start velocity 30, 60 ticks, random origin, wheel colors. Fewer particles on small screens. */
 (function () {
   'use strict';
 
@@ -9,6 +9,7 @@
   var burstTimer = null, endTimer = null;
   var lastFrame = 0;
   var FRAME = 1000 / 60;
+  var reducedMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function init() {
     canvas = document.getElementById('fxCanvas');
@@ -89,7 +90,8 @@
 
   function fireBurst(colors) {
     var x = Math.random() * W, y = (Math.random() - 0.2) * H;
-    for (var i = 0; i < 100; i++) {
+    var count = W * H > 900000 ? 70 : 40;
+    for (var i = 0; i < count; i++) {
       parts.push(particle(x, y, { spread: 360, startVelocity: 30, ticks: 60, rgb: hexToRgb(colors[(Math.random() * colors.length) | 0]) }));
     }
     if (!running) { running = true; requestAnimationFrame(frame); }
@@ -102,11 +104,12 @@
 
   window.Confetti = {
     launch: function (colors) {
+      if (reducedMotion) return;
       if (!canvas) init();
       stopBursts();
       colors = colors && colors.length ? colors : ['#CCCCCC'];
       fireBurst(colors);
-      burstTimer = setInterval(function () { fireBurst(colors); }, 200);
+      burstTimer = setInterval(function () { fireBurst(colors); }, 250);
       endTimer = setTimeout(stopBursts, 5000);
     },
     stop: function () { stopBursts(); parts.length = 0; }

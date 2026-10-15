@@ -8,7 +8,7 @@
 
   var App = window.App = {
     group: null,          // { wheelConfigs: [], shareMode, title, description }
-    winners: [],          // results tab (memory only, like the original)
+    winners: [],          // results tab (memory only)
     tab: 'entries-0',     // 'entries-<i>' | 'results'
     busy: new Set(),      // wheel indexes that are spinning
     editorHidden: false,
@@ -79,7 +79,7 @@
     if (out.type !== 'image') out.type = 'color';
     if (['never', 'always', 'on-image'].indexOf(out.hideEntryText) < 0) out.hideEntryText = 'never';
     out.pageBackgroundColor = hex6(out.pageBackgroundColor) || '#FFFFFF';
-    // Sounds that only exist as audio files on the original site fall back to our synthesized ones.
+    // Sounds that only exist as audio files on other wheel sites fall back to our synthesized ones.
     if (!Sound.has(out.duringSpinSound)) out.duringSpinSound = 'random-music'; // the original's music tracks
     if (!Sound.has(out.afterSpinSound)) out.afterSpinSound = 'applause-sound-soft';
     out.title = out.title.slice(0, 100);
@@ -204,9 +204,9 @@
     body.classList.toggle('multi', multi);
     body.classList.toggle('editor-hidden', App.editorHidden && landscape);
     body.classList.toggle('is-fullscreen', App.fullscreen);
-    var showLeft = !!App.shared || (!multi && !(App.editorHidden && landscape) && !App.fullscreen && App.cfg(0).showTitle);
+    var showLeft = !!App.shared || (!multi && !(App.editorHidden && landscape) && !App.fullscreen && (landscape || App.cfg(0).showTitle));
     body.classList.toggle('has-left', showLeft);
-    var headerH = App.shared ? 0 : 50;
+    var headerH = App.shared ? 0 : ($('#topbar').offsetHeight || 56);
     var cols, colW, availH;
     if (landscape) {
       var unit = (W - 32) / 4;
@@ -228,6 +228,7 @@
     var center = $('#centerCol');
     center.style.setProperty('--wheel-size', size + 'px');
     center.style.setProperty('--wheel-cols', cols);
+    App.wheels.forEach(function (w) { w.setDisplaySize(size); });
   };
 
   // ---------------------------------------------------------------- wheels on the page
@@ -253,9 +254,13 @@
         var w = new Wheel(canvas, {
           onSpinStart: function () { spinStarted(i); },
           onIndexChange: function () { onIndexChange(i); },
-          onStop: function (entry, slice) { spinStopped(i, entry, slice); }
+          onStop: function (entry, slice) { spinStopped(i, entry, slice); },
+          // drag & flick: a fast release spins that way; slow drags just turn the wheel by hand
+          onFlick: function (dir) { App.spinWheel(i, dir); },
+          onDragStart: function () { Sound.unlock(); App.overlayHidden[i] = true; $('.wheel-overlay', box).classList.add('is-hidden'); },
+          onDragTick: function () { var c = App.cfg(i); if (c && c.duringSpinSound === 'ticking-sound') Sound.tick(c.duringSpinSoundVolume); }
         });
-        canvas.addEventListener('click', function () { App.spinWheel(i); });
+        canvas.addEventListener('click', function () { if (!w.justDragged()) App.spinWheel(i); });
         canvas.addEventListener('keydown', function (e) {
           if ((e.key === 'Enter' || e.key === ' ') && !e.ctrlKey && !e.metaKey) { e.preventDefault(); App.spinWheel(i); }
         });
@@ -277,7 +282,7 @@
     title.hidden = !(multi && cfg.showTitle && cfg.title);
     $('canvas', w.box).setAttribute('aria-label', t('Bánh xe') + (multi ? ' ' + (i + 1) : '') + (cfg.title ? ': ' + cfg.title : ''));
     $('.wheel-overlay', w.box).classList.toggle('is-hidden', !App.prefs.showWheelOverlay || !!App.overlayHidden[i] || !cfg.entries.length);
-    if (i === 0) { App.applyPageBackground(); App.renderTitle(); }
+    if (i === 0) { App.applyPageBackground(); App.renderTitle(); App.renderStage(); }
   };
 
   App.renderTitle = function () {
@@ -288,18 +293,28 @@
     $('#wheelDesc').textContent = cfg.description;
     $('#wheelTitle').hidden = !cfg.title;
     $('#wheelDesc').hidden = !cfg.description;
-    document.title = (cfg.title ? cfg.title + ' | ' : '') + t('Vòng Quay Tên') + ' | ' + t('Công cụ chọn tên ngẫu nhiên');
+    $('#btnNameWheel').hidden = !!cfg.title;
+    document.title = (cfg.title ? cfg.title + ' | ' : '') + 'Xoay Vần | ' + t('Vòng quay may mắn công bằng');
+  };
+
+  // Left card: how many entries are on wheel 1, how many spins so far, and the latest winner.
+  App.renderStage = function () {
+    var w = App.wheels[0], last = App.winners[App.winners.length - 1];
+    $('#statEntries').textContent = w ? w.all.length : App.cfg(0).entries.length;
+    $('#statSpins').textContent = App.winners.length;
+    $('#lastWin').hidden = !last;
+    $('#lastWinName').textContent = last ? (last.text || t('Ảnh')) : '';
   };
 
   // ---------------------------------------------------------------- spinning
   var round = null; // { first, queue, music }
 
-  App.spinWheel = function (i) {
+  App.spinWheel = function (i, dir) {
     var w = App.wheels[i], cfg = App.cfg(i);
     if (!w || !cfg || U.anyDialogOpen()) return;
     if (!cfg.entries.length) return;
     Sound.unlock();
-    w.spin();
+    w.spin(dir);
   };
   App.spinAll = function () {
     if (U.anyDialogOpen()) return;
@@ -332,6 +347,8 @@
     App.wheels[i].box.classList.remove('is-busy');
     if (!entry || !round) { App.renderBusy(); return; }
     var copy = U.clone(entry);
+    copy.at = Date.now();
+    copy.color = slice ? slice.drawnColor || slice.color : null;
     App.winners.push(copy);
     round.queue.push({ entry: copy, wheelIndex: i, color: slice ? slice.drawnColor || slice.color : '#CCCCCC', message: entry.message || cfg.winnerMessage });
     if (cfg.autoRemoveWinner) startAutoRemove(i, copy);
@@ -356,7 +373,7 @@
   App.renderBusy = function () {
     var busy = App.isBusy();
     document.body.classList.toggle('is-busy', busy);
-    $$('#tbNav .tb-btn, #mobileMenu .menu-item, #btnBurger').forEach(function (b) { b.disabled = busy; });
+    $$('#tbNav .tb-btn, #mobileMenu .menu-item, #btnBurger, #btnSpinNow').forEach(function (b) { b.disabled = busy; });
     if (App.renderEditorBusy) App.renderEditorBusy(busy);
   };
 
@@ -406,6 +423,13 @@
     U.openDialog(dlg);
     if (canRemove) setTimeout(function () { $('#btnWinnerRemove').focus(); }, 100);
   }
+
+  $('#btnWinnerAgain').addEventListener('click', function () {
+    var p = pending;
+    U.closeDialog('dlgWinner');
+    if (!p) return;
+    setTimeout(function () { if (p.queue.length > 1) App.spinAll(); else App.spinWheel(p.queue[0].wheelIndex); }, 150);
+  });
 
   App.removedFeedback = function (names, lead) {
     if (lead && lead.playClickWhenWinnerRemoved) Sound.click(lead.afterSpinSoundVolume);
@@ -474,12 +498,26 @@
   $('#winnerAnim').addEventListener('click', function () { this.hidden = true; });
 
   // ---------------------------------------------------------------- results tab
+  function clock(ts) {
+    try { return new Date(ts).toLocaleTimeString(I18N.locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' }); } catch (e) { return ''; }
+  }
   App.renderResults = function () {
-    var box = $('#resultsBox');
-    box.innerHTML = App.winners.map(function (w) {
-      return '<div>' + (w.image ? '<img src="' + U.esc(w.image) + '" alt="">' : '') + U.esc(w.text) + '</div>';
-    }).join('');
+    var list = App.winners, box = $('#resultsBox');
+    box.innerHTML = list.length ? list.map(function (w, k) {
+      return '<li><span class="r-idx">' + (k + 1) + '</span>' +
+        (w.color ? '<span class="r-dot" style="background:' + U.esc(w.color) + '"></span>' : '') +
+        '<span class="r-name">' + (w.image ? '<img src="' + U.esc(w.image) + '" alt="">' : '') + U.esc(w.text) + '</span>' +
+        (w.at ? '<time class="r-time">' + U.esc(clock(w.at)) + '</time>' : '') + '</li>';
+    }).join('') : '<li class="result-empty">' + U.esc(t('Chưa có kết quả nào. Hãy quay bánh xe!')) + '</li>';
+    // how often each result came up; the most frequent repeats are shown as chips
+    var counts = new Map();
+    list.forEach(function (w) { counts.set(w.text || '', (counts.get(w.text || '') || 0) + 1); });
+    var top = Array.from(counts.entries()).filter(function (e) { return e[1] > 1; }).sort(function (a, b) { return b[1] - a[1]; }).slice(0, 3);
+    $('#resultsSummary').innerHTML = list.length ? '<span>' + U.esc(t('{n} lượt quay · {m} kết quả khác nhau', { n: list.length, m: counts.size })) + '</span>' +
+      top.map(function (e) { return '<span class="chip">' + U.esc(e[0] || t('Ảnh')) + ' ×' + e[1] + '</span>'; }).join('') : '';
+    box.scrollTop = box.scrollHeight;
     if (App.renderTabs) App.renderTabs();
+    App.renderStage();
   };
   $('#btnSortResults').addEventListener('click', function () {
     App.winners.sort(function (a, b) { return String(a.text).localeCompare(String(b.text), 'en', { numeric: true, sensitivity: 'base' }); });
@@ -522,6 +560,8 @@
   }
   App.openTitleDialog = openTitleDialog;
   $('#btnEditTitle').addEventListener('click', function () { openTitleDialog(0); });
+  $('#btnNameWheel').addEventListener('click', function () { openTitleDialog(0); });
+  $('#btnSpinNow').addEventListener('click', function () { App.spinAll(); });
   function saveTitle() {
     var dlg = $('#dlgTitle'), i = +dlg.dataset.wheel || 0, cfg = App.cfg(i);
     cfg.title = $('#titleInput').value.trim().slice(0, 50);
@@ -567,7 +607,10 @@
     sheet: function () { App.openSheet(); },
     fairness: function () { App.openFairness(); },
     options: function () { App.openPreferences(); },
-    language: function () { App.openLanguage(); }
+    language: function () { App.openLanguage(); },
+    teams: function () { App.openTeams(); },
+    shortcuts: function () { App.openShortcuts(); },
+    theme: function () { App.toggleTheme(); }
   };
   App.ACTIONS = ACTIONS;
   document.addEventListener('click', function (e) {
@@ -717,9 +760,10 @@
     App.renderBusy();
     if (!shared) App.persist();
     window.addEventListener('resize', U.debounce(App.layout, 60));
+    if (App.loadFontsInUse) App.loadFontsInUse();
     // Re-measure wheel text once Quicksand (incl. the Vietnamese subset) has loaded.
     if (document.fonts && document.fonts.load) {
-      Promise.all(['Quicksand', '700 12px Roboto'].map(function (f) { return document.fonts.load(f.indexOf('px') > 0 ? f : '400 24px ' + f, 'AaĐđƯưẠạ'); })).then(function () {
+      Promise.all(['400 24px Quicksand', '600 16px "Be Vietnam Pro"'].map(function (f) { return document.fonts.load(f, 'AaĐđƯưẠạ'); })).then(function () {
         Wheel.clearMeasureCache();
         App.wheels.forEach(function (w, i) { App.refreshWheel(i); });
       }, function () {});

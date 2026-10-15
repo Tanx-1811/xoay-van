@@ -17,7 +17,8 @@ const types = {
   '.woff2': 'font/woff2',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
-  '.md': 'text/markdown; charset=utf-8'
+  '.md': 'text/markdown; charset=utf-8',
+  '.webmanifest': 'application/manifest+json'
 };
 
 http.createServer((req, res) => {
@@ -30,4 +31,4 @@ http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': types[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
     res.end(data);
   });
-}).listen(port, () => console.log(`Vòng Quay Tên running at http://localhost:${port}`));
+}).listen(port, () => console.log(`Xoay Vần running at http://localhost:${port}`));

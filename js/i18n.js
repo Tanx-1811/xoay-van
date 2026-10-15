@@ -24,7 +24,7 @@
   }
 
   // Static page text: translate text nodes and title/aria-label/placeholder/data-tip attributes once at load.
-  var ATTRS = ['title', 'aria-label', 'placeholder', 'data-tip', 'label'];
+  var ATTRS = ['title', 'aria-label', 'placeholder', 'data-tip', 'label', 'data-placeholder'];
   function translateStatic(root) {
     if (lang === 'vi') return;
     var walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {

@@ -3,8 +3,7 @@
   'use strict';
 
   var DEFAULT_ENTRIES = ['An', 'Bình', 'Chi', 'Dũng', 'Giang', 'Hà', 'Khoa', 'Linh'];
-  // Signature palette: son (vermilion), nghệ (marigold), ngọc (jade), kem (cream), chàm (indigo).
-  var DEFAULT_COLORS = ['#D9432F', '#F4B23E', '#1F7A6A', '#F5E6C8', '#2E3A6E'];
+  var DEFAULT_COLORS = ['#5DADE2', '#82E0AA', '#F7DC6F', '#AF7AC5'];
   var PALETTE_SLOTS = 6;
   var NO_COLOR = '#CCCCCC'; // used when every palette slot is unchecked
 
@@ -62,8 +61,13 @@
   var HUB_SIZES = { XS: 0.01, S: 0.2, M: 0.3, L: 0.4, XL: 0.5, XXL: 0.6 };
 
   var THEMES = [
+    { group: "General", themes: [
+      ["Default", DEFAULT_COLORS],
+      ["Classic", ['#3369E8', '#D50F25', '#EEB211', '#009925']],
+      ["The world stands with Ukraine", ['#0057B8', '#FFD700']]
+    ] },
     { group: 'Bản sắc Việt', themes: [
-      ['Xoay Vần', DEFAULT_COLORS],
+      ['Xoay Vần', ['#D9432F', '#F4B23E', '#1F7A6A', '#F5E6C8', '#2E3A6E']],
       ['Sơn mài', ['#8E1B12', '#C8962E', '#1A1210', '#E8C77A', '#5B2A16']],
       ['Tết', ['#D7261E', '#F7C531', '#FDE9B5', '#B31217', '#F59E1B']],
       ['Hội An', ['#F2A33A', '#E2572C', '#F7D774', '#2F6E73', '#A63A2B', '#F5E3B8']],
@@ -75,11 +79,6 @@
       ['Gốm Bát Tràng', ['#1E3F8A', '#F4F1E8', '#3E64B5', '#DCE3F0', '#16295C']],
       ['Trung thu', ['#F28C28', '#FFD166', '#C0392B', '#2C3E66', '#FFF1C1']],
       ['Tranh Đông Hồ', ['#C0392B', '#E8B04B', '#2E7D5B', '#1D3557', '#F1E4C9']]
-    ] },
-    { group: "General", themes: [
-      ["Pastel", ['#5DADE2', '#82E0AA', '#F7DC6F', '#AF7AC5']],
-      ["Classic", ['#3369E8', '#D50F25', '#EEB211', '#009925']],
-      ["The world stands with Ukraine", ['#0057B8', '#FFD700']]
     ] },
     { group: "Bright & Playful", themes: [
       ["Rainbow", ['#5E02E9', '#3C70EF', '#30D800', '#E7E200', '#FD8B00', '#F20800']],
@@ -215,7 +214,7 @@
 
   // Wheel fonts (Google Fonts, all with Vietnamese glyphs): [family, canvas weight, css2 query or null if preloaded].
   var WHEEL_FONTS = [
-    ['', '600', null], ['Fraunces', '600', null], ['Baloo 2', '600', 'Baloo+2:wght@600'], ['Montserrat', '700', 'Montserrat:wght@700'],
+    ['', '400', null], ['Be Vietnam Pro', '600', null], ['Fraunces', '600', 'Fraunces:wght@600'], ['Baloo 2', '600', 'Baloo+2:wght@600'], ['Montserrat', '700', 'Montserrat:wght@700'],
     ['Comfortaa', '700', 'Comfortaa:wght@700'], ['Playfair Display', '700', 'Playfair+Display:wght@700'], ['Patrick Hand', '400', 'Patrick+Hand'],
     ['Pangolin', '400', 'Pangolin'], ['Itim', '400', 'Itim'], ['Dancing Script', '700', 'Dancing+Script:wght@700'],
     ['Lobster', '400', 'Lobster'], ['Pacifico', '400', 'Pacifico'], ['Bangers', '400', 'Bangers']
