@@ -402,6 +402,7 @@ window.I18N_EN = {
   'Mọi thứ nằm trong trình duyệt của bạn. Liên kết chia sẻ chứa sẵn bánh xe đã nén, không máy chủ nào lưu lại.': 'Everything stays in your browser. A share link carries the compressed wheel itself, so no server keeps a copy.',
   'Dùng cả khi offline': 'Works offline',
   'Cài Xoay Vần lên màn hình chính như một ứng dụng. Sau lần mở đầu tiên, bánh xe vẫn quay khi mất mạng.': 'Install Xoay Vần on your home screen like an app. After the first visit, the wheel keeps spinning without a connection.',
+  'Cách sử dụng': 'How to use',
   'Ba bước là xong': 'Three steps and done',
   'Nhập danh sách': 'Enter your list',
   'Gõ mỗi dòng một tên vào khung bên phải, hoặc dán cả cột từ Excel, Google Sheets.': 'Type one name per line in the box on the right, or paste a whole column from Excel or Google Sheets.',

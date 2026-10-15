@@ -294,6 +294,7 @@
     $('#wheelTitle').hidden = !cfg.title;
     $('#wheelDesc').hidden = !cfg.description;
     $('#btnNameWheel').hidden = !!cfg.title;
+    $('#btnEditTitle').hidden = !cfg.title && !cfg.description;
     document.title = (cfg.title ? cfg.title + ' | ' : '') + 'Xoay Vần | ' + t('Vòng quay may mắn công bằng');
   };
 
