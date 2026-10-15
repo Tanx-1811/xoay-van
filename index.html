@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vòng Quay Tên | Công cụ chọn tên ngẫu nhiên</title>
+  <meta name="description" content="Vòng quay ngẫu nhiên miễn phí và dễ sử dụng. Nhập danh sách, bấm quay và chọn người chiến thắng ngẫu nhiên. Tùy chỉnh giao diện, lưu và chia sẻ bánh xe.">
+  <meta name="theme-color" content="#5DADE2">
+  <link rel="icon" href="img/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400&family=Roboto:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="css/app.css">
+  <script>
+    // Apply the saved app color scheme before first paint: light | dark | system (default).
+    (function () {
+      var t = 'system';
+      try { t = JSON.parse(localStorage.getItem('vqt_options') || '{}').appTheme || 'system'; } catch (e) {}
+      if (t === 'system') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+</head>
+<body>
+  <header class="topbar" id="topbar">
+    <a class="brand" href="./" id="brandLink"><img src="img/logo.svg" alt="" width="38" height="38"><h1>Vòng Quay Tên</h1></a>
+    <nav class="tb-nav" id="tbNav" aria-label="Thanh công cụ">
+      <button type="button" class="tb-btn js-hide-fs js-single" data-action="customize"><i class="fas fa-palette"></i><span>Tùy chỉnh</span></button>
+      <button type="button" class="tb-btn js-hide-fs" data-action="new"><i class="fas fa-file"></i><span>Mới</span></button>
+      <button type="button" class="tb-btn" data-action="open" title="Mở"><i class="fa fa-folder-open"></i><span class="js-hide-fs">Mở</span></button>
+      <button type="button" class="tb-btn js-hide-fs" data-action="save"><i class="fa fa-save"></i><span>Lưu</span></button>
+      <button type="button" class="tb-btn js-hide-fs" data-action="share"><i class="fa fa-share-alt"></i><span>Chia sẻ</span></button>
+      <button type="button" class="tb-btn js-hide-fs" data-action="gallery"><i class="fa fa-search"></i><span>Bộ sưu tập</span></button>
+      <button type="button" class="tb-btn tb-icon js-fullscreen" id="btnFullscreen" data-action="fullscreen" aria-label="Toàn màn hình" title="Toàn màn hình"><i class="fas fa-expand js-fs-icon"></i></button>
+      <div class="menu-anchor js-hide-fs">
+        <button type="button" class="tb-btn" id="btnMore" aria-haspopup="menu" aria-expanded="false"><span>Thêm</span><i class="fas fa-caret-down tb-caret"></i></button>
+        <div class="menu menu-right" id="moreMenu" role="menu" hidden>
+          <button type="button" class="menu-item" role="menuitem" data-action="faq"><i class="fa fa-question-circle"></i><span>FAQ</span></button>
+          <hr class="menu-sep">
+          <button type="button" class="menu-item js-single" role="menuitem" data-action="sheet"><i class="fa-solid fa-file-arrow-up"></i><span>Nhập bảng tính</span></button>
+          <button type="button" class="menu-item" role="menuitem" data-action="fairness"><i class="fas fa-balance-scale"></i><span>Kiểm tra độ ngẫu nhiên</span></button>
+          <button type="button" class="menu-item" role="menuitem" data-action="options"><i class="fas fa-cog"></i><span>Tùy chọn</span></button>
+        </div>
+      </div>
+      <button type="button" class="tb-btn js-hide-fs" data-action="language"><i class="fas fa-globe"></i><span class="js-lang-name">Tiếng Việt</span></button>
+    </nav>
+    <div class="menu-anchor tb-burger-wrap">
+      <button type="button" class="tb-btn tb-icon tb-burger" id="btnBurger" aria-label="Menu" aria-haspopup="menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+      <div class="menu menu-right" id="mobileMenu" role="menu" hidden>
+        <button type="button" class="menu-item js-single js-hide-fs" data-action="customize"><i class="fas fa-palette"></i><span>Tùy chỉnh</span></button>
+        <button type="button" class="menu-item js-hide-fs" data-action="new"><i class="fas fa-file"></i><span>Mới</span></button>
+        <button type="button" class="menu-item" data-action="open"><i class="fa fa-folder-open"></i><span>Mở</span></button>
+        <button type="button" class="menu-item js-hide-fs" data-action="save"><i class="fa fa-save"></i><span>Lưu</span></button>
+        <button type="button" class="menu-item js-hide-fs" data-action="share"><i class="fa fa-share-alt"></i><span>Chia sẻ</span></button>
+        <button type="button" class="menu-item" data-action="gallery"><i class="fa fa-search"></i><span>Bộ sưu tập</span></button>
+        <button type="button" class="menu-item js-fullscreen" data-action="fullscreen"><i class="fas fa-expand js-fs-icon"></i><span>Toàn màn hình</span></button>
+        <button type="button" class="menu-item" data-action="options"><i class="fas fa-cog"></i><span>Tùy chọn</span></button>
+        <button type="button" class="menu-item" data-action="language"><i class="fas fa-globe"></i><span>Ngôn ngữ</span></button>
+        <button type="button" class="menu-item" data-action="faq"><i class="fa fa-question-circle"></i><span>FAQ</span></button>
+        <button type="button" class="menu-item js-single" data-action="sheet"><i class="fa-solid fa-file-arrow-up"></i><span>Nhập bảng tính</span></button>
+        <button type="button" class="menu-item" data-action="fairness"><i class="fas fa-balance-scale"></i><span>Kiểm tra độ ngẫu nhiên</span></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page" id="page">
+    <div class="page-bg" aria-hidden="true"></div>
+    <section class="left-col" id="leftCol">
+      <div class="title-block" id="titleBlock">
+        <div class="title-row">
+          <h2 class="wheel-title" id="wheelTitle"></h2>
+          <button type="button" class="round-btn btn-secondary js-hide-fs" id="btnEditTitle" aria-label="Chỉnh sửa tiêu đề và mô tả" title="Chỉnh sửa tiêu đề và mô tả"><i class="fas fa-pencil-alt"></i></button>
+        </div>
+        <p class="wheel-desc" id="wheelDesc"></p>
+      </div>
+      <div class="shared-info" id="sharedInfo">
+        <div class="card shared-card">
+          <h2 class="shared-title" id="sharedTitle"></h2>
+          <p class="wheel-desc" id="sharedDesc"></p>
+        </div>
+        <div class="card shared-card shared-controls">
+          <button type="button" class="btn btn-primary" id="btnSharedCopy"><i class="far fa-clone"></i><span>Sao chép bánh xe này</span></button>
+          <button type="button" class="btn btn-primary" id="btnSharedOwn"><i class="fas fa-pencil-alt"></i><span>Tạo bánh xe của riêng bạn</span></button>
+          <label class="mute-toggle" title="Âm thanh"><i class="fas fa-volume-mute"></i><span class="switch"><input type="checkbox" id="sharedMute" aria-label="Âm thanh"><span></span></span><i class="fas fa-volume-up"></i></label>
+        </div>
+        <button type="button" class="btn btn-primary shared-spin-all" id="sharedSpinAll"><i class="fas fa-rotate-right"></i><span>Quay tất cả các bánh xe</span></button>
+      </div>
+    </section>
+    <section class="center-col" id="centerCol" aria-label="Bánh xe"></section>
+    <aside class="right-col" id="rightCol" aria-label="Trình chỉnh sửa">
+      <button type="button" class="round-btn round-sm btn-secondary editor-toggle" id="btnHideEditor" aria-label="Ẩn trình chỉnh sửa" title="Ẩn trình chỉnh sửa"><i class="fas fa-chevron-right"></i></button>
+      <div class="card editor-card" id="editorCard">
+        <div class="tabs" role="tablist" id="editorTabs"></div>
+        <div class="tab-panels">
+          <div class="tab-panel" id="entriesPane">
+            <div class="tool-row">
+              <button type="button" class="btn btn-secondary btn-xs" id="btnShuffle"><i class="fas fa-random"></i><span>Xáo trộn</span></button>
+              <button type="button" class="btn btn-secondary btn-xs" id="btnSort"><i class="fas fa-sort-alpha-up"></i><span>Sắp xếp</span></button>
+              <div class="split menu-anchor">
+                <button type="button" class="btn btn-secondary btn-xs" id="btnAddImage"><i class="fas fa-image"></i><span>Thêm ảnh</span></button>
+                <button type="button" class="btn btn-secondary btn-xs split-caret" id="btnAddImageMenu" aria-label="Mở rộng &quot;Thêm ảnh&quot;" aria-haspopup="menu" aria-expanded="false"><i class="fas fa-caret-down"></i></button>
+                <div class="menu" id="addImageMenu" role="menu" hidden>
+                  <button type="button" class="menu-item menu-item-tall" data-img="background"><span class="menu-avatar av-bg"></span><span>Thêm hình nền</span></button>
+                  <button type="button" class="menu-item menu-item-tall" data-img="center"><span class="menu-avatar av-center"></span><span>Thêm hình ảnh trung tâm</span></button>
+                  <button type="button" class="menu-item menu-item-tall" data-img="entry"><span class="menu-avatar av-slice"></span><span>Thêm hình ảnh làm mục nhập</span></button>
+                </div>
+              </div>
+              <label class="check check-xs" id="advancedWrap"><input type="checkbox" id="chkAdvanced"><span>Nâng cao</span></label>
+            </div>
+            <div class="basic-editor" id="basicEditor" contenteditable="true" spellcheck="false" autocomplete="off" translate="no" role="textbox" aria-multiline="true" aria-label="Danh sách mục, mỗi dòng một mục"></div>
+            <div class="adv-editor" id="advEditor" hidden>
+              <ul class="adv-list" id="advList"></ul>
+              <div class="adv-foot">
+                <button type="button" class="btn btn-primary grow" id="btnAddEntry">Thêm mục</button>
+                <button type="button" class="btn btn-primary" id="btnRevealHidden" hidden>Hiện mục đã ẩn</button>
+              </div>
+            </div>
+            <div class="multi-controls">
+              <button type="button" class="btn btn-secondary" id="btnSpinAll" hidden><i class="fas fa-rotate-right"></i><span>Quay tất cả các bánh xe</span></button>
+              <div class="split menu-anchor">
+                <button type="button" class="btn btn-secondary" id="btnAddWheel"><i class="fas fa-plus"></i><span>Thêm bánh xe</span></button>
+                <button type="button" class="btn btn-secondary split-caret" id="btnAddWheelMenu" aria-label="Mở rộng &quot;Thêm bánh xe&quot;" aria-haspopup="menu" aria-expanded="false"><i class="fas fa-caret-down"></i></button>
+                <div class="menu" id="addWheelMenu" role="menu" hidden>
+                  <button type="button" class="menu-item" data-act="add-open"><i class="fa fa-folder-open"></i><span>Mở bánh xe</span></button>
+                </div>
+              </div>
+              <div class="wheel-actions" id="wheelActions" hidden>
+                <button type="button" class="btn btn-secondary" id="btnCustomizeWheel"><i class="fas fa-palette"></i><span id="lblCustomizeWheel">Tùy chỉnh bánh xe 1</span></button>
+                <button type="button" class="btn btn-secondary" id="btnRenameWheel"><i class="fas fa-pen"></i><span id="lblRenameWheel">Đổi tên bánh xe 1</span></button>
+                <button type="button" class="btn btn-flat" id="btnDeleteWheel"><i class="fa fa-trash-can"></i><span id="lblDeleteWheel">Xóa bánh xe 1</span></button>
+              </div>
+            </div>
+          </div>
+          <div class="tab-panel" id="resultsPane" hidden>
+            <div class="tool-row">
+              <button type="button" class="btn btn-grey btn-xs" id="btnSortResults"><i class="fas fa-sort-alpha-up"></i><span>Sắp xếp</span></button>
+              <button type="button" class="btn btn-grey btn-xs" id="btnClearResults"><i class="fas fa-times"></i><span>Xóa danh sách</span></button>
+              <button type="button" class="btn btn-grey btn-xs" id="btnExportResults"><i class="fas fa-file-arrow-down"></i><span>Xuất kết quả</span></button>
+            </div>
+            <div class="basic-editor results-box" id="resultsBox" aria-label="Kết quả" aria-readonly="true"></div>
+          </div>
+        </div>
+        <div class="app-info"><span>Phiên bản <span id="appVersion">1.0</span></span><button type="button" class="link" id="btnChangelog">Changelog</button></div>
+      </div>
+    </aside>
+    <button type="button" class="round-btn round-sm btn-primary show-editor" id="btnShowEditor" aria-label="Hiện trình chỉnh sửa" title="Hiện trình chỉnh sửa"><i class="fas fa-chevron-left"></i></button>
+  </main>
+
+  <div class="below" id="below">
+    <hr class="below-hr">
+    <section class="about" id="about">
+      <div class="about-col">
+        <article class="card about-card">
+          <h2><img src="img/logo.svg" alt="" width="32" height="32">Vòng quay dùng để làm gì?</h2>
+          <p>Bất cứ khi nào cần một lựa chọn ngẫu nhiên mà ai cũng thấy công bằng:</p>
+          <ul>
+            <li>Gọi tên học sinh trả lời câu hỏi tiếp theo trong lớp.</li>
+            <li>Chọn khách hàng may mắn nhận quà trong chương trình khuyến mãi hằng tháng.</li>
+            <li>Bốc thăm người trúng thưởng trong buổi thuyết trình hoặc sự kiện.</li>
+            <li>Xếp thứ tự phát biểu trong cuộc họp đầu ngày.</li>
+            <li>Có quá nhiều việc cần làm? Cho hết lên bánh xe và để nó chọn việc làm trước.</li>
+            <li>Đi chơi với bạn bè: quay để chọn ai đi trước trong trò chơi.</li>
+            <li>Cả nhóm không quyết được tối nay ăn gì? Quay một vòng là xong.</li>
+          </ul>
+        </article>
+        <article class="card about-card">
+          <h2><img src="img/logo.svg" alt="" width="32" height="32">Cách sử dụng</h2>
+          <p>Rất đơn giản: nhập các mục vào khung bên phải bánh xe, mỗi dòng một mục, rồi bấm vào bánh xe để quay và nhận một người chiến thắng ngẫu nhiên. Bạn cũng có thể nhấn <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.</p>
+          <p>Muốn đổi màu, âm thanh hay thời gian quay, bấm <button type="button" class="chip-inline" data-action="customize"><i class="fas fa-palette"></i> Tùy chỉnh</button> ở đầu trang.</p>
+        </article>
+      </div>
+      <div class="about-col">
+        <article class="card about-card">
+          <h2><img src="img/logo.svg" alt="" width="32" height="32">Tính năng</h2>
+          <ul>
+            <li><b>Nhiều bánh xe:</b> tối đa 10 bánh xe trên cùng một trang, quay tất cả một lượt.</li>
+            <li><b>Trọng số:</b> ở chế độ Nâng cao, tăng trọng số để một mục chiếm phần lớn hơn và dễ trúng hơn.</li>
+            <li><b>Hình ảnh:</b> dùng ảnh làm mục, làm ảnh trung tâm hoặc làm hình nền cho bánh xe.</li>
+            <li><b>Chủ đề màu:</b> 82 bảng màu có sẵn, hoặc tự chọn tối đa 6 màu.</li>
+            <li><b>Âm thanh và pháo giấy:</b> tiếng tích tắc, nhạc khi quay, hàng chục âm thanh khi có người thắng, kể cả đọc to kết quả.</li>
+            <li><b>Chia sẻ:</b> tạo đường link chứa toàn bộ bánh xe để gửi cho người khác.</li>
+            <li><b>Nhập bảng tính:</b> dán một cột từ Google Sheets hoặc Excel để tạo danh sách trong vài giây.</li>
+          </ul>
+        </article>
+        <article class="card about-card">
+          <h2><img src="img/logo.svg" alt="" width="32" height="32">Dữ liệu của tôi có được giữ riêng tư không?</h2>
+          <p>Có. Các mục bạn nhập chỉ được lưu trong bộ nhớ của trình duyệt trên máy bạn, không gửi đến server nào. Khi bạn tạo link chia sẻ, dữ liệu bánh xe được nén ngay trong đường link.</p>
+        </article>
+      </div>
+      <div class="about-col">
+        <article class="card about-card" id="faq">
+          <h2><img src="img/logo.svg" alt="" width="32" height="32">Bánh xe có thật sự ngẫu nhiên?</h2>
+          <p>Có, và bạn có thể tự kiểm chứng: chạy 10.000 lượt quay mô phỏng chỉ trong vài giây và xem kết quả.</p>
+          <p><button type="button" class="btn btn-primary" data-action="fairness">Chạy 10.000 lượt quay</button></p>
+          <p><b>Cách đảm bảo ngẫu nhiên:</b> bánh xe không dùng hàm <code>Math.random()</code> thông thường mà dùng <code>crypto.getRandomValues()</code>, bộ sinh số ngẫu nhiên an toàn có sẵn trong trình duyệt. Số ngẫu nhiên này quyết định góc dừng của bánh xe trong mô phỏng vật lý, nên kết quả không thể đoán trước.</p>
+          <p><b>Sao kết quả lại giống lần trước?</b> Với ngẫu nhiên thật, trùng kết quả là chuyện bình thường. Với 10 mục, xác suất mục vừa thắng lại thắng ở lượt sau là 10%. Nếu không muốn ai thắng hai lần, bấm <b>Xóa</b> trong cửa sổ người thắng.</p>
+        </article>
+      </div>
+    </section>
+    <hr class="below-hr">
+    <footer class="footer">
+      <button type="button" class="link-plain" data-action="faq"><i class="fa fa-question-circle"></i> FAQ</button>
+      <button type="button" class="link-plain" data-action="fairness"><i class="fas fa-balance-scale"></i> Kiểm tra độ ngẫu nhiên</button>
+      <span class="build">Vòng Quay Tên · chạy hoàn toàn trên trình duyệt</span>
+    </footer>
+  </div>
+
+  <!-- ============================== dialogs ============================== -->
+  <dialog class="dlg dlg-800" id="dlgCustomize">
+    <div class="tabs tabs-center" role="tablist" id="custTabs">
+      <button type="button" class="tab is-active" data-ctab="during">Trong khi quay</button>
+      <button type="button" class="tab" data-ctab="after">Sau khi quay</button>
+      <button type="button" class="tab" data-ctab="appearance">Giao diện</button>
+    </div>
+    <div class="dlg-scroll" id="custScroll">
+      <section class="ctab" data-ctab-body="during">
+        <div class="banner-warn" id="bannerDuring" hidden></div>
+        <div class="cfg-row">
+          <label class="cfg-label col-2" for="cfgDuringSound">Âm thanh</label>
+          <select class="field-select" id="cfgDuringSound" data-cfg="duringSpinSound"></select>
+          <button type="button" class="btn btn-unel" id="btnPlayDuring" aria-label="Phát"><i class="fas fa-play"></i></button>
+          <button type="button" class="btn btn-unel" data-stop aria-label="Dừng"><i class="fas fa-stop"></i></button>
+        </div>
+        <div class="cfg-row">
+          <span class="cfg-label col-2">Âm lượng</span>
+          <div class="slider-wrap">
+            <input type="range" min="0" max="100" step="1" data-cfg="duringSpinSoundVolume" aria-label="Âm lượng">
+            <div class="slider-marks"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+          </div>
+        </div>
+        <hr class="low-hr">
+        <div class="check-row">
+          <label class="check"><input type="checkbox" data-cfg="allowDuplicates"><span>Hiển thị các mục trùng lặp</span></label>
+          <span class="help" tabindex="0" data-tip="Hiển thị mọi mục trong khung văn bản lên bánh xe, kể cả các mục trùng lặp"><i class="fas fa-question-circle"></i></span>
+          <label class="check"><input type="checkbox" data-cfg="slowSpin"><span>Quay chậm</span></label>
+          <label class="check"><input type="checkbox" data-cfg="showTitle"><span>Hiển thị tiêu đề</span></label>
+        </div>
+        <hr class="low-hr">
+        <div class="cfg-block">
+          <div class="cfg-label">Thời gian quay (giây)</div>
+          <div class="slider-wrap labeled"><output class="slider-label" data-out="spinTime"></output>
+            <input type="range" min="1" max="60" step="1" data-cfg="spinTime" aria-label="Thời gian quay (giây)">
+            <div class="slider-marks marks-7"><span>1</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span></div>
+          </div>
+        </div>
+        <hr class="low-hr">
+        <div class="cfg-block">
+          <div class="cfg-label cfg-strong">Số lượng tên tối đa trên bánh xe <span class="help" id="maxNamesHelp" tabindex="0" data-tip="Bị vô hiệu hóa vì các mục nhập có trọng số không bằng nhau" hidden><i class="fas fa-question-circle"></i></span></div>
+          <small class="cfg-small">Tất cả các tên trong khung văn bản có cùng cơ hội chiến thắng, bất kể giá trị này.</small>
+          <div class="slider-wrap labeled"><output class="slider-label" data-out="maxNames"></output>
+            <input type="range" min="4" max="1000" step="1" data-cfg="maxNames" aria-label="Số lượng tên tối đa trên bánh xe">
+            <div class="slider-marks marks-11"><span>4</span><span>100</span><span>200</span><span>300</span><span>400</span><span>500</span><span>600</span><span>700</span><span>800</span><span>900</span><span>1000</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="ctab" data-ctab-body="after" hidden>
+        <div class="banner-warn" id="bannerAfter" hidden></div>
+        <div class="cfg-row">
+          <label class="cfg-label col-2" for="cfgAfterSound">Âm thanh</label>
+          <select class="field-select" id="cfgAfterSound" data-cfg="afterSpinSound"></select>
+          <button type="button" class="btn btn-unel" id="btnPlayAfter" aria-label="Phát"><i class="fas fa-play"></i></button>
+          <button type="button" class="btn btn-unel" data-stop aria-label="Dừng"><i class="fas fa-stop"></i></button>
+        </div>
+        <div class="cfg-row">
+          <span class="cfg-label col-2">Âm lượng</span>
+          <div class="slider-wrap">
+            <input type="range" min="0" max="100" step="1" data-cfg="afterSpinSoundVolume" aria-label="Âm lượng">
+            <div class="slider-marks"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+          </div>
+        </div>
+        <hr class="low-hr">
+        <div class="check-row">
+          <label class="check"><input type="checkbox" data-cfg="animateWinner"><span>Tạo hiệu ứng cho mục thắng</span></label>
+          <label class="check"><input type="checkbox" data-cfg="launchConfetti"><span>Bắn pháo hoa giấy</span></label>
+          <label class="check"><input type="checkbox" data-cfg="autoRemoveWinner"><span>Tự động xóa người chiến thắng sau 5 giây</span></label>
+        </div>
+        <hr class="low-hr">
+        <div class="cfg-row wrap">
+          <label class="check"><input type="checkbox" data-cfg="displayWinnerDialog"><span>Hiển thị cửa sổ bật lên với thông báo:</span></label>
+          <input class="field-input grow" maxlength="100" data-cfg="winnerMessage" placeholder="Chúng ta có một người chiến thắng!" aria-label="Thông báo">
+        </div>
+        <div class="cfg-row cfg-indent wrap">
+          <label class="check"><input type="checkbox" data-cfg="displayRemoveButton"><span>Hiển thị nút "Xóa"</span></label>
+          <label class="check" id="hideButtonOpt"><input type="checkbox" data-cfg="displayHideButton"><span>Hiển thị nút "Ẩn"</span></label>
+        </div>
+        <div class="cfg-row">
+          <label class="check"><input type="checkbox" data-cfg="playClickWhenWinnerRemoved"><span>Phát tiếng click khi người chiến thắng bị xóa</span></label>
+        </div>
+      </section>
+
+      <section class="ctab" data-ctab-body="appearance" hidden>
+        <div class="mode-switch">
+          <div class="mode-opt">
+            <button type="button" class="mode-img mode-colors" data-mode="color" aria-label="Một màu cho mỗi phần"></button>
+            <span>Một màu cho mỗi phần</span>
+          </div>
+          <label class="switch switch-fancy"><input type="checkbox" id="cfgImageMode" aria-label="Hình nền bánh xe"><span></span></label>
+          <div class="mode-opt">
+            <button type="button" class="mode-img mode-picture" id="modePicture" data-mode="image" aria-label="Hình nền bánh xe"></button>
+            <span>Hình nền bánh xe</span>
+          </div>
+        </div>
+        <hr class="low-hr">
+        <div id="colorModeOpts">
+          <div class="menu-anchor inline">
+            <button type="button" class="btn btn-primary btn-200" id="btnThemes" aria-haspopup="menu" aria-expanded="false"><span>Áp dụng một chủ đề</span><i class="fas fa-caret-down"></i></button>
+            <div class="menu menu-scroll" id="themesMenu" role="menu" hidden></div>
+          </div>
+          <div class="cfg-label cfg-mt">Tùy chỉnh màu sắc <span class="help" tabindex="0" data-tip="Nhấp vào các mẫu màu để sửa đổi chúng"><i class="fas fa-question-circle"></i></span></div>
+          <div class="palette" id="paletteEditor"></div>
+          <hr class="low-hr">
+          <div class="cfg-row wrap">
+            <span class="cfg-label">Hình ảnh ở trung tâm của bánh xe</span>
+            <div class="menu-anchor">
+              <button type="button" class="btn btn-primary btn-img" id="btnCenterImage" aria-haspopup="menu" aria-expanded="false" aria-label="Hình ảnh ở trung tâm của bánh xe"><span class="avatar" id="centerThumb"></span><i class="fas fa-caret-down"></i></button>
+              <div class="menu menu-wide" id="centerImageMenu" role="menu" hidden>
+                <button type="button" class="menu-item menu-warn" data-center="remove" id="centerRemove"><i class="fas fa-ban"></i><span>Xóa hình ảnh</span></button>
+                <button type="button" class="menu-item" data-center="gallery"><i class="fas fa-search"></i><span>Tìm kiếm trong bộ sưu tập</span></button>
+                <button type="button" class="menu-item" data-center="upload"><i class="fas fa-upload"></i><span>Tải ảnh lên</span></button>
+                <div class="menu-row"><input class="field-input" id="centerTextInput" maxlength="20" placeholder="Văn bản ở giữa" aria-label="Văn bản ở giữa"><button type="button" class="btn btn-primary" id="btnCenterTextSave">Lưu</button></div>
+              </div>
+            </div>
+            <label class="cfg-label" for="cfgHubSize">Kích thước ảnh</label>
+            <select class="field-select narrow" id="cfgHubSize" data-cfg="hubSize"></select>
+          </div>
+        </div>
+        <div id="imageModeOpts" hidden>
+          <div class="cfg-row wrap">
+            <span class="cfg-label">Hình nền bánh xe</span>
+            <div class="menu-anchor">
+              <button type="button" class="btn btn-primary btn-img" id="btnCoverImage" aria-haspopup="menu" aria-expanded="false" aria-label="Hình nền bánh xe"><span class="avatar" id="coverThumb"></span><i class="fas fa-caret-down"></i></button>
+              <div class="menu menu-scroll menu-wide" id="coverImageMenu" role="menu" hidden></div>
+            </div>
+          </div>
+        </div>
+        <hr class="low-hr">
+        <div class="appearance-grid">
+          <div class="col-flex">
+            <div class="cfg-row">
+              <label class="color-btn" id="pageBgBtn" title="Màu nền của trang"><i class="fas fa-palette"></i><input type="color" data-cfg="pageBackgroundColor" aria-label="Màu nền của trang"></label>
+              <span>Màu nền của trang</span>
+            </div>
+            <label class="check"><input type="checkbox" data-cfg="pageGradient"><span>Hiển thị một dải màu trên trang</span></label>
+            <select class="field-select" data-cfg="hideEntryText" id="cfgTextDisplay" aria-label="Hiển thị văn bản"></select>
+          </div>
+          <div class="col-flex">
+            <label class="check"><input type="checkbox" data-cfg="drawOutlines"><span>Đường viền</span></label>
+            <label class="check"><input type="checkbox" data-cfg="drawShadow"><span>Đổ bóng bánh xe</span></label>
+            <label class="check" id="pointerColorOpt"><input type="checkbox" data-cfg="pointerChangesColor"><span>Con trỏ thay đổi màu sắc</span></label>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-flat" data-close="cancel">Hủy</button>
+      <button type="button" class="btn btn-primary" id="btnCustomizeOk">Đồng ý</button>
+    </div>
+  </dialog>
+
+  <dialog class="dlg dlg-winner" id="dlgWinner">
+    <div class="winner-head" id="winnerHead"><span id="winnerMessage">Chúng ta có một người chiến thắng!</span></div>
+    <div class="winner-body" id="winnerBody"></div>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-flat" data-close="close" id="btnWinnerClose">Đóng</button>
+      <button type="button" class="btn btn-primary" id="btnWinnerRemove">Xóa</button>
+      <button type="button" class="btn btn-primary" id="btnWinnerRemoveAll" hidden>Xóa tất cả các lần xuất hiện</button>
+      <button type="button" class="btn btn-primary" id="btnWinnerHide" hidden>Ẩn</button>
+    </div>
+  </dialog>
+
+  <dialog class="dlg dlg-400" id="dlgLocation">
+    <div class="dlg-head"><h2><i class="fa fa-folder-open" id="locIcon"></i> <span id="locTitle">Mở bánh xe</span></h2><button type="button" class="icon-btn" data-close aria-label="Đóng"><i class="fas fa-times"></i></button></div>
+    <div class="dlg-body">
+      <button type="button" class="big-choice big-primary" id="btnLocBrowser"><i class="fas fa-cloud"></i><span id="locBrowserLabel">Mở từ trình duyệt (được khuyến nghị)</span></button>
+      <button type="button" class="big-choice big-muted" id="btnLocFile"><i class="fas fa-hard-drive"></i><span id="locFileLabel">Mở một tập tin cục bộ</span></button>
+      <button type="button" class="link link-help" id="btnHelpChoose"><i class="fa-regular fa-circle-question"></i> Giúp tôi chọn</button>
+    </div>
+  </dialog>
+
+  <dialog class="dlg dlg-400" id="dlgHelpStorage">
+    <div class="dlg-head"><h2><i class="fa-regular fa-circle-question"></i> Giúp tôi chọn</h2><button type="button" class="icon-btn" data-close aria-label="Đóng"><i class="fas fa-times"></i></button></div>
+    <div class="dlg-body prose">
+      <p><b>Trình duyệt:</b> bánh xe được lưu ngay trong trình duyệt này và mở lại chỉ với một cú bấm. Nếu bạn xóa dữ liệu duyệt web hoặc dùng máy khác, bánh xe sẽ không còn ở đó.</p>
+      <p><b>Tệp cục bộ:</b> bánh xe được tải về thành một tệp <code>.wheel</code>. Bạn có thể cất giữ, gửi qua email và mở lại trên bất kỳ máy nào.</p>
+    </div>
+    <div class="dlg-actions"><button type="button" class="btn btn-primary" data-close>Đóng</button></div>
+  </dialog>
+
+  <dialog class="dlg dlg-640" id="dlgMyWheels">
+    <div class="dlg-head"><h2><i class="fa fa-folder-open"></i> Bánh xe của tôi</h2><button type="button" class="icon-btn" data-close aria-label="Đóng"><i class="fas fa-times"></i></button></div>
+    <div class="dlg-body">
+      <div class="row-gap" id="myWheelsTools">
+        <input type="search" class="field-input grow" id="savedSearch" placeholder="Tìm kiếm" aria-label="Tìm kiếm">
+        <select class="field-select narrow-200" id="savedSort" aria-label="Sắp xếp">
+          <option value="title-asc">Sắp xếp theo tiêu đề tăng dần</option>
+          <option value="title-desc">Sắp xếp theo tiêu đề giảm dần</option>
+          <option value="updated-desc">Sắp xếp theo cập nhật mới nhất trước</option>
+          <option value="updated-asc">Sắp xếp theo cập nhật cũ nhất trước</option>
+        </select>
+      </div>
+      <ul class="saved-list" id="savedList"></ul>
+      <p class="empty-note" id="savedEmpty" hidden>Không tìm thấy bánh xe nào trong trình duyệt này. Hãy thử lưu một bánh xe!</p>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-flat" id="btnOpenLocalInstead">Thay vào đó hãy mở một tệp cục bộ</button>
+      <button type="button" class="btn btn-flat" data-close>Hủy</button>
+    </div>
+  </dialog>
+
+  <dialog class="dlg dlg-640" id="dlgSaveBrowser">
+    <form id="formSaveBrowser">
+      <div class="dlg-head"><h2><i class="fa fa-save"></i> Lưu bánh xe vào trình duyệt</h2></div>
+      <div class="dlg-body">
+        <div class="cfg-row wrap">
+          <label class="cfg-label col-3" for="saveAsInput">Lưu thành</label>
+          <input class="field-input field-filled grow" id="saveAsInput" maxlength="50" required>
+        </div>
+        <div class="cfg-row wrap">
+          <label class="cfg-label col-3" for="saveExisting">Bánh xe hiện tại của bạn</label>
+          <select class="field-select" id="saveExisting"></select>
+        </div>
+        <p>Các bánh xe đã lưu nằm trong trình duyệt này cho đến khi bạn xóa dữ liệu duyệt web.</p>
+        <p><button type="button" class="btn btn-secondary" id="btnSaveLocalInstead">Thay vào đó hãy lưu vào một tệp cục bộ</button></p>
+      </div>
+      <div class="dlg-actions">
+        <button type="button" class="btn btn-flat" data-close>Hủy</button>
+        <button type="submit" class="btn btn-primary">Lưu</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="dlg dlg-640" id="dlgSaveLocal">
+    <form id="formSaveLocal">
+      <div class="dlg-head"><h2><i class="fa fa-save"></i> Lưu vào một tệp cục bộ</h2></div>
+      <div class="dlg-body">
+        <div class="cfg-row">
+          <label class="cfg-label col-3" for="fileNameInput">Tên tệp</label>
+          <div class="input-suffix grow"><input class="field-input field-filled" id="fileNameInput" maxlength="50" required><span>.wheel</span></div>
+        </div>
+        <p><button type="button" class="btn btn-secondary" id="btnSaveBrowserInstead">Thay vào đó hãy lưu vào trình duyệt</button></p>
+      </div>
+      <div class="dlg-actions">
+        <button type="button" class="btn btn-flat" data-close>Hủy</button>
+        <button type="submit" class="btn btn-primary">Lưu</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="dlg dlg-700" id="dlgShare">
+    <div class="stepper" id="shareStepper"></div>
+    <div class="dlg-body share-body">
+      <section data-share-step="info">
+        <p>Nếu bạn tiếp tục, bạn sẽ tạo một liên kết đến bánh xe hiện tại của bạn, bao gồm tên, màu sắc và cài đặt của nó.</p>
+        <p>Liên kết này sẽ hoạt động đối với bất kỳ ai và bạn có thể chia sẻ nó qua email, trang web, phương tiện truyền thông xã hội, v.v. Toàn bộ bánh xe được nén ngay trong liên kết nên không có server nào lưu lại, và liên kết không bao giờ hết hạn.</p>
+        <p>Hình ảnh tải lên từ máy của bạn không đi kèm liên kết vì quá lớn.</p>
+      </section>
+      <section data-share-step="theme" hidden>
+        <h3 class="share-h">Áp dụng một chủ đề</h3>
+        <div class="theme-cards" id="shareThemes"></div>
+        <p><button type="button" class="btn btn-secondary" id="btnRefreshThemes"><i class="fas fa-sync"></i><span>Làm mới chủ đề màu sắc</span></button></p>
+      </section>
+      <section data-share-step="visibility" hidden>
+        <input class="field-input field-filled" id="shareTitle" maxlength="50" placeholder="Tiêu đề bánh xe" aria-label="Tiêu đề bánh xe">
+        <p class="field-error" id="shareTitleError" hidden>Bánh xe của bạn phải có tiêu đề</p>
+        <label class="check"><input type="checkbox" id="shareShowTitle"><span>Hiển thị tiêu đề cho những người sử dụng liên kết được chia sẻ của bạn</span></label>
+        <h3 class="share-h">Chế độ hiển thị</h3>
+        <label class="radio"><input type="radio" name="shareMode" value="spin-only"><span>Bất kỳ ai có liên kết đều có thể quay bánh xe</span></label>
+        <label class="radio"><input type="radio" name="shareMode" value="copyable" checked><span>Bất kỳ ai có liên kết đều có thể quay và sao chép bánh xe</span></label>
+      </section>
+      <section data-share-step="link" hidden>
+        <p>Liên kết đến bánh xe này kèm theo tên, màu sắc và cài đặt hiện tại:</p>
+        <div class="copy-row"><input class="field-input standout" id="shareUrl" readonly aria-label="Liên kết"><button type="button" class="btn btn-positive" id="btnCopyShare"><i class="fas fa-copy"></i><span>Sao chép liên kết</span></button></div>
+        <p class="cfg-small" id="shareWarn" hidden></p>
+      </section>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-flat" id="btnShareBack" hidden><i class="fas fa-arrow-left"></i></button>
+      <button type="button" class="btn btn-flat" data-close id="btnShareCancel">Hủy</button>
+      <button type="button" class="btn btn-primary" id="btnShareNext">Tiếp tục</button>
+    </div>
+  </dialog>
+
+  <dialog class="dlg dlg-400" id="dlgConfirm">
+    <div class="dlg-head"><h2 id="confirmTitle">Xác nhận</h2></div>
+    <div class="dlg-body confirm-body"><i class="fas fa-question-circle confirm-icon" id="confirmIcon"></i><p id="confirmText"></p></div>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-flat" data-close="cancel" id="btnConfirmCancel">Hủy</button>
+      <button type="button" class="btn btn-primary" id="btnConfirmOk">Đồng ý</button>
+    </div>
+  </dialog>
+
+  <dialog class="dlg dlg-640" id="dlgTitle">
+    <form id="formTitle">
+      <div class="dlg-head"><h2><i class="fas fa-pencil-alt"></i> <span id="titleDlgHead">Chỉnh sửa tiêu đề và mô tả</span></h2></div>
+      <div class="dlg-body">
+        <input class="field-input field-filled" id="titleInput" maxlength="50" placeholder="Tiêu đề bánh xe" aria-label="Tiêu đề bánh xe">
+        <textarea class="field-input field-filled" id="descInput" rows="5" maxlength="200" placeholder="Mô tả bánh xe" aria-label="Mô tả bánh xe"></textarea>
+      </div>
+      <div class="dlg-actions">
+        <button type="button" class="btn btn-flat" data-close>Hủy</button>
+        <button type="submit" class="btn btn-primary">Đồng ý</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="dlg dlg-640" id="dlgAdvanced">
+    <div class="dlg-head"><h2><i class="fas fa-sliders"></i> Nâng cao</h2><button type="button" class="icon-btn" data-close aria-label="Đóng"><i class="fas fa-times"></i></button></div>
+    <div class="dlg-body">
+      <div class="adv-nav" id="advNav">
+        <button type="button" class="round-btn btn-secondary" id="advPrev" aria-label="Trước"><i class="fas fa-arrow-left"></i></button>
+        <span id="advPos">Mục 1 / 1</span>
+        <button type="button" class="round-btn btn-secondary" id="advNext" aria-label="Sau"><i class="fas fa-arrow-right"></i></button>
+        <button type="button" class="round-btn btn-primary push-right" id="advAddAfter" aria-label="Thêm mục" title="Thêm mục"><i class="fa fa-plus"></i></button>
+      </div>
+      <div id="advForm">
+        <hr class="low-hr">
+        <div class="row-gap">
+          <label class="check"><input type="checkbox" id="advVisible"><span>Hiển thị</span></label>
+          <button type="button" class="btn btn-secondary" id="advDuplicate"><i class="fas fa-clone"></i><span>Nhân bản</span></button>
+          <button type="button" class="btn btn-negative" id="advDelete"><i class="fas fa-trash"></i><span>Xóa</span></button>
+        </div>
+        <div class="form-grid">
+          <label class="cfg-label" for="advText">Văn bản</label>
+          <input class="field-input field-filled" id="advText" maxlength="1000">
+          <span class="cfg-label" id="advColorLabel">Màu</span>
+          <div class="adv-color-row">
+            <div class="row-gap" id="advColorRow">
+              <label class="color-btn" id="advColorBtn"><i class="fas fa-palette"></i><input type="color" id="advColor" aria-label="Màu"></label>
+              <button type="button" class="round-btn round-sm btn-negative-flat" id="advResetColor" aria-label="Đặt lại màu sắc" title="Đặt lại màu sắc"><i class="fas fa-times"></i></button>
+              <button type="button" class="btn btn-flat btn-xs" id="advColorFromImage"><i class="fas fa-arrow-left"></i><span>Sử dụng màu từ hình ảnh</span></button>
+            </div>
+            <div class="adv-img-box">
+              <span class="adv-img-preview" id="advImgPreview"><img id="advImg" alt=""><button type="button" class="thumb-x" id="advRemoveImage" aria-label="Xóa hình ảnh" title="Xóa hình ảnh"><i class="fas fa-times"></i></button></span>
+              <button type="button" class="btn btn-secondary" id="advAddImage"><i class="far fa-image"></i><span>Thêm ảnh</span></button>
+            </div>
+          </div>
+          <label class="cfg-label" for="advSound">Âm thanh</label>
+          <select class="field-select" id="advSound"></select>
+          <label class="cfg-label" for="advMessage" id="advMessageRow">Thông báo bật lên</label>
+          <input class="field-input field-filled" id="advMessage" maxlength="100" placeholder="Chúng ta có một người chiến thắng!">
+          <label class="cfg-label" for="advWeight">Trọng số</label>
+          <div class="row-gap">
+            <div class="input-steps"><button type="button" id="advWeightDec" aria-label="-"><i class="fas fa-minus"></i></button><input type="number" class="field-input" id="advWeight" min="1" max="9999" step="any"><button type="button" id="advWeightInc" aria-label="+"><i class="fas fa-plus"></i></button></div>
+            <span id="advProb">Xác suất: 0%</span>
+          </div>
+        </div>
+      </div>
+      <div class="empty-note" id="advEmpty" hidden><p>Không có mục nào</p><button type="button" class="btn btn-primary" id="advAddFirst">Thêm mục</button></div>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-flat" data-close>Hủy</button>
+      <button type="button" class="btn btn-primary" id="btnAdvancedOk">Đồng ý</button>
+    </div>
+  </dialog>
+
+  <dialog class="dlg dlg-640" id="dlgAddImage">
+    <div class="dlg-head"><h2><i class="fas fa-image"></i> <span id="addImageTitle">Thêm ảnh</span></h2><button type="button" class="icon-btn" data-close aria-label="Đóng"><i class="fas fa-times"></i></button></div>
+    <div class="dlg-body">
+      <div class="big-pair">
+        <button type="button" class="big-choice big-primary" id="btnAddImageGallery"><i class="fas fa-search"></i><span>Tìm kiếm trong bộ sưu tập</span></button>
+        <button type="button" class="big-choice big-primary" id="btnAddImageUpload"><i class="fas fa-upload"></i><span>Tải ảnh lên</span></button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="dlg dlg-640" id="dlgPictures">
+    <div class="dlg-head"><h2><i class="fas fa-image"></i> Tìm kiếm trong bộ sưu tập</h2><button type="button" class="icon-btn" data-close aria-label="Đóng"><i class="fas fa-times"></i></button></div>
+    <div class="dlg-body"><div class="picture-grid" id="pictureGrid"></div></div>
+    <div class="dlg-actions"><button type="button" class="btn btn-flat" data-close>Hủy</button></div>
+  </dialog>
+
+  <dialog class="dlg dlg-640" id="dlgPreferences">
+    <div class="dlg-head"><h2 class="h5"><i class="fa fa-cog"></i> Tùy chọn</h2></div>
+    <div class="dlg-body">
+      <div class="cfg-label">Chủ đề ứng dụng</div>
+      <div class="radio-row">
+        <label class="radio radio-icon"><input type="radio" name="appTheme" value="light"><i class="fas fa-sun"></i><span>Sáng</span></label>
+        <label class="radio radio-icon"><input type="radio" name="appTheme" value="system"><i class="fas fa-circle-half-stroke"></i><span>Hệ thống</span></label>
+        <label class="radio radio-icon"><input type="radio" name="appTheme" value="dark"><i class="fas fa-moon"></i><span>Tối</span></label>
+      </div>
+      <label class="check"><input type="checkbox" id="prefOverlay"><span>Hiển thị văn bản "Nhấp để quay"</span></label>
+      <label class="check"><input type="checkbox" id="prefLangTip"><span>Đề nghị thay đổi ngôn ngữ cho phù hợp với thiết bị</span></label>
+      <label class="cfg-label" for="prefNewTheme">Chủ đề cho bánh xe mới</label>
+      <select class="field-select" id="prefNewTheme"></select>
+    </div>
+    <div class="dlg-actions"><button type="button" class="btn btn-primary" data-close>Đóng</button></div>
+  </dialog>
+
+  <dialog class="dlg dlg-640" id="dlgLanguage">
+    <div class="dlg-head"><h2><i class="fas fa-globe"></i> Ngôn ngữ</h2><button type="button" class="icon-btn" data-close aria-label="Đóng"><i class="fas fa-times"></i></button></div>
+    <div class="dlg-body">
+      <h3 class="h6">Ngôn ngữ được đề xuất</h3>
+      <div class="lang-row" id="langSuggested"></div>
+      <h3 class="h6">Tất cả các ngôn ngữ</h3>
+      <input type="search" class="field-input" id="langSearch" placeholder="Tìm kiếm" aria-label="Tìm kiếm">
+      <div class="lang-list" id="langAll"></div>
+    </div>
+    <div class="dlg-actions"><button type="button" class="btn btn-primary" data-close>Đóng</button></div>
+  </dialog>
+
+  <dialog class="dlg dlg-800" id="dlgGallery">
+    <div class="dlg-head"><h2><i class="fa fa-search"></i> Bộ sưu tập</h2><button type="button" class="icon-btn" data-close aria-label="Đóng"><i class="fas fa-times"></i></button></div>
+    <div class="dlg-body">
+      <input type="search" class="field-input" id="gallerySearch" placeholder="Tìm kiếm" aria-label="Tìm kiếm">
+      <p class="cfg-small" id="galleryCount"></p>
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </div>
+  </dialog>
+
+  <dialog class="dlg dlg-640" id="dlgSheet">
+    <div class="dlg-head"><h2><i class="fa-solid fa-file-arrow-up"></i> Nhập bảng tính</h2><button type="button" class="icon-btn" data-close aria-label="Đóng"><i class="fas fa-times"></i></button></div>
+    <div class="dlg-body">
+      <p class="cfg-small">Sao chép các ô trong Google Sheets hoặc Excel rồi dán vào đây, hoặc chọn tệp <code>.csv</code>.</p>
+      <textarea class="field-input field-filled mono" id="sheetText" rows="7" placeholder="An&#10;Bình&#10;Chi" aria-label="Dữ liệu bảng tính"></textarea>
+      <div class="form-grid">
+        <label class="cfg-label" for="sheetColumn">Cột</label>
+        <select class="field-select" id="sheetColumn"></select>
+        <span class="cfg-label">Hàng đầu tiên</span>
+        <label class="check"><input type="checkbox" id="sheetHeader"><span>Là hàng tiêu đề và không cần nhập</span></label>
+        <label class="cfg-label" for="sheetWeights">Cột trọng số <span class="help" tabindex="0" data-tip="Chọn cột chứa trọng số số học cho mỗi mục nhập. Chỉ những cột có số trong tất cả các ô mới được hiển thị."><i class="fas fa-question-circle"></i></span></label>
+        <select class="field-select" id="sheetWeights"></select>
+      </div>
+      <p class="cfg-small" id="sheetPreview"></p>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-flat push-left" id="btnSheetFile"><i class="fas fa-file-csv"></i><span>Chọn tệp…</span></button>
+      <button type="button" class="btn btn-flat" data-close>Hủy</button>
+      <button type="button" class="btn btn-primary" id="btnSheetImport">Đồng ý</button>
+    </div>
+  </dialog>
+
+  <dialog class="dlg dlg-800" id="dlgFairness">
+    <div class="dlg-head"><h2><i class="fas fa-balance-scale"></i> Kiểm toán công bằng và minh bạch</h2><button type="button" class="icon-btn" data-close aria-label="Đóng"><i class="fas fa-times"></i></button></div>
+    <div class="dlg-body">
+      <p>Công cụ này quay bánh xe hiện tại thật nhiều lần bằng đúng mô phỏng vật lý của bánh xe (góc dừng được chọn bằng <code>crypto.getRandomValues</code>), rồi đếm số lần mỗi ô thắng. Với số lượt quay lớn, số lần thắng thực tế sẽ rất gần với kỳ vọng.</p>
+      <div class="row-gap">
+        <label class="cfg-label" for="fairSpins">Số vòng quay</label>
+        <select class="field-select narrow" id="fairSpins"><option value="10000" selected>10.000</option><option value="50000">50.000</option><option value="100000">100.000</option></select>
+        <label class="cfg-label" for="fairRuns">Số lần chạy thử nghiệm</label>
+        <select class="field-select narrow" id="fairRuns"><option value="1">1</option><option value="3" selected>3</option><option value="5">5</option></select>
+      </div>
+      <div id="fairOut"></div>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-flat" data-close>Đóng</button>
+      <button type="button" class="btn btn-primary" id="btnRunFairness">Chạy kiểm tra</button>
+    </div>
+  </dialog>
+
+  <dialog class="dlg dlg-640" id="dlgChangelog">
+    <div class="dlg-head"><h2>Changelog</h2><button type="button" class="icon-btn" data-close aria-label="Đóng"><i class="fas fa-times"></i></button></div>
+    <div class="dlg-body prose">
+      <p><b>1.0</b> · Bản đầu tiên: bánh xe với vật lý quay giống bản gốc, chế độ Nâng cao (màu, ảnh, trọng số, ẩn mục), tối đa 10 bánh xe, Tùy chỉnh 3 tab, 82 chủ đề màu, âm thanh tổng hợp, pháo giấy, lưu vào trình duyệt hoặc tệp <code>.wheel</code>, chia sẻ bằng liên kết, bộ sưu tập mẫu, nhập bảng tính, kiểm tra độ ngẫu nhiên, giao diện sáng/tối, tiếng Việt và tiếng Anh.</p>
+    </div>
+    <div class="dlg-actions"><button type="button" class="btn btn-primary" data-close>Đóng</button></div>
+  </dialog>
+
+  <div class="winner-anim" id="winnerAnim" hidden><div class="wa-content"><p class="wa-text" id="winnerAnimText"></p></div></div>
+  <canvas class="fx-layer" id="fxCanvas" aria-hidden="true"></canvas>
+  <input type="file" id="fileWheel" accept=".wheel,.json,application/json" hidden>
+  <input type="file" id="fileCsv" accept=".csv,.tsv,.txt,text/csv,text/plain" hidden>
+  <input type="file" id="fileImage" accept="image/*" hidden>
+
+  <script src="js/data.js"></script>
+  <script src="js/i18n-en.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/confetti.js"></script>
+  <script src="js/wheel.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/editor.js"></script>
+  <script src="js/dialogs.js"></script>
+</body>
+</html>

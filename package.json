@@ -1,0 +1,10 @@
+{
+  "name": "vong-quay-ten",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Random name picker wheel (behavioural clone of wheelofnames.com/vi) – static web app, no build step",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs"
+  }
+}
