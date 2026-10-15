@@ -428,6 +428,13 @@ window.I18N_EN = {
   'Xoay Vần cần JavaScript để chạy.': 'Xoay Vần needs JavaScript to run.',
 
   // what's new
+  'Bánh xe to hơn: các cột bên cạnh tự co lại để bánh xe dùng hết chiều cao màn hình; nhiều bánh xe tự chọn cách xếp cho to nhất.': 'A bigger wheel: the side columns shrink so the wheel uses the full screen height; several wheels pick the arrangement that makes them largest.',
+  'Sửa lỗi: bấm Xóa hoặc Ẩn người thắng giờ cập nhật luôn khung danh sách, tên đã xóa không còn quay lại khi gõ tiếp.': 'Fix: removing or hiding a winner now updates the entry list too, so removed names no longer come back when you keep typing.',
+  'Trang mở nhanh hơn: phông chữ và biểu tượng tải song song, không chặn bánh xe.': 'Faster start: fonts and icons load in parallel instead of holding up the wheel.',
+  'Quay mượt hơn trên màn hình 120/144 Hz; chạm nhẹ trên điện thoại luôn được tính là bấm quay, vuốt theo hướng nào cũng quay được.': 'Smoother spins on 120/144 Hz screens; a light tap on a phone always counts as a spin, and a flick in any direction spins.',
+  'Sửa lỗi: kéo bánh xe rồi thả tay bên ngoài, hoặc chạm hai ngón, không còn làm bánh xe ngừng nhận bấm.': 'Fix: dragging the wheel and letting go outside it, or touching with two fingers, no longer stops the wheel from responding to clicks.',
+  'Sửa lỗi: khi bật Tự động xóa, bấm Quay tiếp sẽ xóa người vừa thắng trước rồi mới quay; ô Vừa trúng luôn đúng người sau khi sắp xếp kết quả.': 'Fix: with auto-remove on, Spin again removes the last winner before spinning; the Latest winner box stays right after sorting results.',
+  'Danh sách dài (trên 100 tên) gõ không còn bị giật.': 'Typing in long lists (over 100 names) no longer stutters.',
   'Tên mới Xoay Vần, logo và màu chủ đạo đỏ son; giao diện vẫn phẳng và gọn như cũ.': 'New name Xoay Vần, a new logo and a vermilion main color; the interface stays flat and simple as before.',
   'Bánh xe vẽ nhẹ hơn: ảnh trên màn hình đúng kích thước hiển thị và các lớp tĩnh được vẽ sẵn, nên quay mượt hơn và đỡ tốn pin.': 'A lighter wheel: the canvas matches its size on screen and still layers are drawn once, so spins are smoother and use less battery.',
   'Kéo hoặc vuốt để tự tay quay, quay được cả hai chiều.': 'Drag or flick to spin by hand, in either direction.',

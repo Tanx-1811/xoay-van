@@ -27,11 +27,13 @@ Vòng quay may mắn công bằng và đơn giản, chạy hoàn toàn trên tr�
 Không cần cài gói nào, chỉ cần Node.js 18 trở lên:
 
 ```bash
-npm start              # http://localhost:5173
+npm start              # http://localhost:5173 (nếu cổng bận sẽ tự chuyển sang 5174, 5175…)
 node server.mjs 8080   # hoặc chọn cổng khác
 ```
 
-Bất kỳ máy chủ tĩnh nào cũng chạy được. Service worker (để dùng offline) chỉ hoạt động qua `http(s)`, không hoạt động khi mở tệp bằng `file://`.
+Server in ra cả địa chỉ trong mạng LAN để mở trên điện thoại cùng Wi-Fi. Bất kỳ máy chủ tĩnh nào khác cũng chạy được.
+
+Chế độ offline (service worker) chỉ bật trên trang đã đưa lên mạng (https). Trên `localhost` nó được tắt để không "dính" vào cổng đó và ảnh hưởng các dự án khác; muốn thử offline ở máy mình thì mở `http://localhost:5173/?sw=1`.
 
 ## Đưa lên GitHub Pages
 

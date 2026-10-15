@@ -142,7 +142,8 @@
     window.addEventListener('load', function () {
       if (!localHost || /[?&]sw=1/.test(location.search)) { navigator.serviceWorker.register('sw.js').catch(function () {}); return; }
       navigator.serviceWorker.getRegistrations().then(function (regs) {
-        regs.forEach(function (r) { var w = r.active || r.waiting || r.installing; if (w && /\/sw\.js$/.test(w.scriptURL)) r.unregister(); });
+        var scope = new URL('./', location.href).href;
+        regs.forEach(function (r) { if (r.scope === scope) r.unregister(); });
       }).catch(function () {});
       if (window.caches) caches.keys().then(function (keys) { keys.forEach(function (k) { if (/^xoay-van/.test(k)) caches.delete(k); }); }).catch(function () {});
     });

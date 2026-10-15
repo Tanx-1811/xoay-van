@@ -112,11 +112,14 @@
       return e;
     });
   }
+  // Long lists: redraw the wheel once typing pauses (every redraw re-fits hundreds of labels).
+  var refreshAfterTyping = U.debounce(function (i, cfg) { if (App.cfg(i) === cfg) App.afterEntriesChanged(i); }, 160);
   basic.addEventListener('input', function () {
     var i = App.activeIndex(), cfg = App.cfg(i);
     if (cfg.isAdvanced) return;
     cfg.entries = reconcile(cfg.entries, parseBasic(basic.innerHTML));
-    App.afterEntriesChanged(i);
+    if (cfg.entries.length > 100) { App.renderTabs(); refreshAfterTyping(i, cfg); }
+    else App.afterEntriesChanged(i);
   });
   basic.addEventListener('beforeinput', function (e) {
     if (/^format(Bold|Italic|Underline)/.test(e.inputType)) e.preventDefault();

@@ -177,7 +177,7 @@
             <ol class="result-list" id="resultsBox" aria-label="Kết quả"></ol>
           </div>
         </div>
-        <div class="app-info"><span>Xoay Vần <span id="appVersion">2.0</span></span><button type="button" class="link" id="btnChangelog">Có gì mới?</button></div>
+        <div class="app-info"><span>Xoay Vần <span id="appVersion">2.1</span></span><button type="button" class="link" id="btnChangelog">Có gì mới?</button></div>
       </div>
     </aside>
     <button type="button" class="round-btn round-sm btn-primary show-editor" id="btnShowEditor" aria-label="Hiện trình chỉnh sửa" title="Hiện trình chỉnh sửa"><i class="fas fa-chevron-left"></i></button>
@@ -534,7 +534,7 @@
         <div class="share-extra">
           <div class="qr-box" id="shareQr" hidden></div>
           <div class="share-side">
-            <p class="cfg-small">Quét mã QR để mở bánh xe trên điện thoại, rất tiện khi trình chiếu trong lớp học hay sự kiện.</p>
+            <p class="cfg-small" id="shareQrHint" hidden>Quét mã QR để mở bánh xe trên điện thoại, rất tiện khi trình chiếu trong lớp học hay sự kiện.</p>
             <button type="button" class="btn btn-secondary" id="btnNativeShare" hidden><i class="fas fa-share-nodes"></i><span>Gửi qua ứng dụng khác</span></button>
             <button type="button" class="btn btn-secondary" id="btnDownloadQr" hidden><i class="fas fa-qrcode"></i><span>Tải mã QR</span></button>
           </div>
@@ -718,6 +718,16 @@
   <dialog class="dlg dlg-640" id="dlgChangelog">
     <div class="dlg-head"><h2><i class="fas fa-wand-magic-sparkles"></i> Có gì mới?</h2><button type="button" class="icon-btn" data-close aria-label="Đóng"><i class="fas fa-times"></i></button></div>
     <div class="dlg-body prose">
+      <h3 class="cl-h">2.1</h3>
+      <ul class="cl-list">
+        <li>Bánh xe to hơn: các cột bên cạnh tự co lại để bánh xe dùng hết chiều cao màn hình; nhiều bánh xe tự chọn cách xếp cho to nhất.</li>
+        <li>Sửa lỗi: bấm Xóa hoặc Ẩn người thắng giờ cập nhật luôn khung danh sách, tên đã xóa không còn quay lại khi gõ tiếp.</li>
+        <li>Trang mở nhanh hơn: phông chữ và biểu tượng tải song song, không chặn bánh xe.</li>
+        <li>Quay mượt hơn trên màn hình 120/144 Hz; chạm nhẹ trên điện thoại luôn được tính là bấm quay, vuốt theo hướng nào cũng quay được.</li>
+        <li>Sửa lỗi: kéo bánh xe rồi thả tay bên ngoài, hoặc chạm hai ngón, không còn làm bánh xe ngừng nhận bấm.</li>
+        <li>Sửa lỗi: khi bật Tự động xóa, bấm Quay tiếp sẽ xóa người vừa thắng trước rồi mới quay; ô Vừa trúng luôn đúng người sau khi sắp xếp kết quả.</li>
+        <li>Danh sách dài (trên 100 tên) gõ không còn bị giật.</li>
+      </ul>
       <h3 class="cl-h">2.0 · Xoay Vần</h3>
       <ul class="cl-list">
         <li>Tên mới Xoay Vần, logo và màu chủ đạo đỏ son; giao diện vẫn phẳng và gọn như cũ.</li>

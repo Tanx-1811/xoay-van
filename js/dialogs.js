@@ -584,6 +584,7 @@
     var box = $('#shareQr');
     box.hidden = true; box.innerHTML = ''; lastQr = null;
     $('#btnDownloadQr').hidden = true;
+    $('#shareQrHint').hidden = true;
     if (url.length > 1500) return; // too dense to scan from a screen
     loadQrLib().then(function (qrcode) {
       var qr = qrcode(0, 'L');
@@ -593,6 +594,7 @@
       box.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true, alt: t('Mã QR của liên kết') });
       box.hidden = false;
       $('#btnDownloadQr').hidden = false;
+      $('#shareQrHint').hidden = false;
     }).catch(function () {});
   }
   $('#btnDownloadQr').addEventListener('click', function () {
@@ -619,10 +621,12 @@
   // Center text pictures are regenerated after loading a shared link.
   App.restoreCenterText = function () {
     App.group.wheelConfigs.forEach(function (c, i) {
-      if (c.pictureType === 'text' && c.centerText && !c.customPictureDataUri) {
+      if (c.pictureType !== 'text' || !c.centerText || c.customPictureDataUri) return;
+      App.fontsReady(c.font).then(function () {
+        if (App.cfg(i) !== c || c.customPictureDataUri) return;
         c.customPictureDataUri = U.centerTextImage(c.centerText, Wheel.fontStack(c.font));
         App.refreshWheel(i);
-      }
+      });
     });
   };
 

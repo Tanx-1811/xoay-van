@@ -1,6 +1,6 @@
 {
   "name": "xoay-van",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "description": "Xoay Vần – vòng quay may mắn công bằng, chạy hoàn toàn trên trình duyệt (static web app, no build step)",
   "type": "module",

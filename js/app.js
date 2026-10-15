@@ -137,6 +137,22 @@
     return p.length ? p : [D.NO_COLOR];
   };
 
+  // ---------------------------------------------------------------- fonts
+  // The font stylesheet loads without blocking the page; this waits for it (at most 5 s) and for the
+  // given wheel font, so text baked into images (center text) uses the right typeface.
+  var fontsCss = new Promise(function (resolve) {
+    var css = document.getElementById('fontsCss');
+    if (!css || css.media !== 'print') { resolve(); return; }
+    css.addEventListener('load', function () { resolve(); });
+    css.addEventListener('error', function () { resolve(); });
+    setTimeout(resolve, 5000);
+  });
+  App.fontsReady = function (font) {
+    return fontsCss.then(function () { return App.loadWheelFont ? App.loadWheelFont(font) : null; })
+      .then(function () { return document.fonts && document.fonts.load(Wheel.fontWeight(font) + ' 100px ' + Wheel.fontStack(font), 'AaĐđƯư'); })
+      .catch(function () {});
+  };
+
   // ---------------------------------------------------------------- persistence
   var storageWarned = false;
   App.persist = U.debounce(function () {
@@ -207,25 +223,47 @@
     var showLeft = !!App.shared || (!multi && !(App.editorHidden && landscape) && !App.fullscreen && (landscape || App.cfg(0).showTitle));
     body.classList.toggle('has-left', showLeft);
     var headerH = App.shared ? 0 : ($('#topbar').offsetHeight || 56);
-    var cols, colW, availH;
+    var pad = landscape ? 12 : 10; // matches .page padding in css/app.css
+    var cols, colW, availH, leftW = 0, editorW = 0;
     if (landscape) {
-      var unit = (W - 32) / 4;
-      var span = App.shared ? 2 : App.fullscreen || App.editorHidden ? 4 : multi ? 3 : 2;
-      colW = unit * span;
-      availH = H - headerH - 32;
+      // The wheel gets everything the editor (right) and the title/stats panel (left) don't need:
+      // the editor has a fixed comfortable width, the panel only takes the room beside a full-height wheel.
+      var editorShown = !App.shared && !App.fullscreen && !App.editorHidden;
+      editorW = editorShown ? Math.round(Math.min(400, Math.max(300, W * 0.24))) : 0;
+      var areaW = W - 2 * pad - editorW;
+      availH = H - headerH - 2 * pad;
+      if (showLeft) {
+        // Narrow screens: if putting the title above the wheel (and dropping the stats card) gives a clearly
+        // bigger wheel than a side column would, do that.
+        body.classList.add('left-top');
+        var topH = App.shared ? Infinity : $('#leftCol').offsetHeight;
+        var side = Math.round(Math.min(320, Math.max(210, areaW - availH)));
+        var useTop = Math.min(areaW, availH - topH) > 1.05 * Math.min(areaW - side, availH);
+        body.classList.toggle('left-top', useTop);
+        if (useTop) availH -= topH; else leftW = side;
+      } else body.classList.remove('left-top');
+      colW = areaW - leftW;
       cols = n <= 3 ? n : Math.ceil(n / 2);
     } else {
-      colW = W - 32;
-      availH = Math.max(260, H - headerH - 32 - (showLeft ? 60 : 0));
+      body.classList.remove('left-top');
+      colW = W - 2 * pad;
+      availH = Math.max(260, H - headerH - 2 * pad - (showLeft ? 60 : 0));
       cols = Math.min(n, 2);
     }
-    var rows = Math.ceil(n / cols);
     var titleH = multi && configs.some(function (c) { return c.showTitle && c.title; }) ? 36 : 0;
     var gap = multi ? 12 : 0;
-    var size = Math.floor(Math.min((colW - gap * (cols - 1)) / cols, (availH - rows * titleH - gap * (rows - 1)) / rows));
+    var fit = function (c) {
+      var r = Math.ceil(n / c);
+      return Math.floor(Math.min((colW - gap * (c - 1)) / c, (availH - r * titleH - gap * (r - 1)) / r));
+    };
+    // several wheels side by side: pick the number of columns that gives the biggest wheels
+    if (landscape && multi) for (var c = 1; c <= n; c++) if (fit(c) > fit(cols)) cols = c;
+    var size = fit(cols);
     if (!landscape && !multi) size = Math.floor(Math.min(colW, availH * 0.92));
     size = Math.max(110, size);
-    var center = $('#centerCol');
+    var page = $('#page'), center = $('#centerCol');
+    page.style.setProperty('--left-w', leftW + 'px');
+    page.style.setProperty('--editor-w', editorW + 'px');
     center.style.setProperty('--wheel-size', size + 'px');
     center.style.setProperty('--wheel-cols', cols);
     App.wheels.forEach(function (w) { w.setDisplaySize(size); });
@@ -296,12 +334,27 @@
     $('#btnNameWheel').hidden = !!cfg.title;
     $('#btnEditTitle').hidden = !cfg.title && !cfg.description;
     document.title = (cfg.title ? cfg.title + ' | ' : '') + 'Xoay Vần | ' + t('Vòng quay may mắn công bằng');
+    // the title's height decides how big the wheel can be, so re-run the layout when it changes
+    var key = block.hidden + '|' + cfg.title + '|' + cfg.description;
+    if (key !== App.titleKey) { App.titleKey = key; if (App.wheels.length) App.layout(); }
   };
 
   // Left card: how many entries are on wheel 1, how many spins so far, and the latest winner.
+  function countOnWheel(cfg) {
+    var seen = new Set();
+    return cfg.entries.filter(function (e) {
+      if (e.enabled === false) return false;
+      if (cfg.allowDuplicates === false) {
+        var k = (e.text || '') + '||' + (e.image || '');
+        if (seen.has(k)) return false;
+        seen.add(k);
+      }
+      return true;
+    }).length;
+  }
   App.renderStage = function () {
-    var w = App.wheels[0], last = App.winners[App.winners.length - 1];
-    $('#statEntries').textContent = w ? w.all.length : App.cfg(0).entries.length;
+    var last = App.lastWinner;
+    $('#statEntries').textContent = countOnWheel(App.cfg(0));
     $('#statSpins').textContent = App.winners.length;
     $('#lastWin').hidden = !last;
     $('#lastWinName').textContent = last ? (last.text || t('Ảnh')) : '';
@@ -312,7 +365,8 @@
 
   App.spinWheel = function (i, dir) {
     var w = App.wheels[i], cfg = App.cfg(i);
-    if (!w || !cfg || U.anyDialogOpen()) return;
+    if (!w || !cfg || U.anyDialogOpen() || w.isSpinning()) return;
+    flushAutoRemovals(i);
     if (!cfg.entries.length) return;
     Sound.unlock();
     w.spin(dir);
@@ -351,6 +405,7 @@
     copy.at = Date.now();
     copy.color = slice ? slice.drawnColor || slice.color : null;
     App.winners.push(copy);
+    App.lastWinner = copy;
     round.queue.push({ entry: copy, wheelIndex: i, color: slice ? slice.drawnColor || slice.color : '#CCCCCC', message: entry.message || cfg.winnerMessage });
     if (cfg.autoRemoveWinner) startAutoRemove(i, copy);
     if (!App.busy.size) finishRound();
@@ -481,19 +536,31 @@
   });
 
   // Auto-remove: countdown toast, removal after 5 s.
+  var autoRemovals = []; // pending removals: a new spin of that wheel applies them first
   function startAutoRemove(i, entry) {
     var left = 5;
     var cfg = App.cfg(i);
     var tst = U.toast(t('Xóa người chiến thắng sau {seconds} giây', { seconds: left }), { persistent: true });
+    var job = { i: i, run: run };
     var iv = setInterval(function () {
       left--;
-      if (left > 0) { tst.set(t('Xóa người chiến thắng sau {seconds} giây', { seconds: left })); return; }
+      if (left > 0) tst.set(t('Xóa người chiến thắng sau {seconds} giây', { seconds: left }));
+      else run();
+    }, 1000);
+    function run() {
       clearInterval(iv);
       tst.close();
+      var at = autoRemovals.indexOf(job);
+      if (at < 0) return;
+      autoRemovals.splice(at, 1);
       var list = App.group.wheelConfigs[i] === cfg ? cfg.entries : null;
       var k = list ? list.findIndex(function (e) { return e.id === entry.id; }) : -1;
       if (k >= 0) { list.splice(k, 1); changedOutsideEditor(i); App.removedFeedback([entry.text], cfg); }
-    }, 1000);
+    }
+    autoRemovals.push(job);
+  }
+  function flushAutoRemovals(i) {
+    autoRemovals.filter(function (j) { return j.i === i; }).forEach(function (j) { j.run(); });
   }
 
   function animateWinner(text) {
@@ -533,7 +600,7 @@
     App.winners.sort(function (a, b) { return String(a.text).localeCompare(String(b.text), 'en', { numeric: true, sensitivity: 'base' }); });
     App.renderResults();
   });
-  $('#btnClearResults').addEventListener('click', function () { App.winners = []; App.renderResults(); });
+  $('#btnClearResults').addEventListener('click', function () { App.winners = []; App.lastWinner = null; App.renderResults(); });
   $('#btnExportResults').addEventListener('click', function () {
     var name = (App.cfg(0).title || 'wheel') + ' results.txt';
     U.download(name, new Blob([App.winners.map(function (w) { return w.text; }).join('\n')], { type: 'text/plain;charset=utf-8' }));
@@ -545,6 +612,7 @@
     o = o || {};
     App.group = g;
     App.winners = [];
+    App.lastWinner = null;
     App.tab = 'entries-0';
     App.lastEntriesIndex = 0;
     App.renderWheels();

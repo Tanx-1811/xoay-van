@@ -7,7 +7,8 @@
   var TAU = Math.PI * 2;
   var SIZE = 700;
   var C = SIZE / 2;
-  var R = 0.44 * SIZE;             // 308
+  var R = 0.455 * SIZE;            // 318.5: as large as fits with the pointer and its shadow
+  var POINTER_X = C + R - 3;       // where the pointer's base line sits
   var FPS = 60;
   var STEP_MS = 1000 / FPS;
   // Physics constants (rad per 1/60 s tick).
@@ -429,13 +430,18 @@
       var r = c.getBoundingClientRect();
       return Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2));
     }
+    function reset() { drag = null; self.dragging = false; }
     c.addEventListener('pointerdown', function (e) {
-      if (self.isSpinning() || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      // one pointer at a time: a second finger must not take over (or strand) the drag
+      if (drag || self.isSpinning() || (e.pointerType === 'mouse' && e.button !== 0)) return;
       // fingers wobble more than a mouse before a tap counts as a drag
       drag = { id: e.pointerId, a: angleOf(e), x: e.clientX, y: e.clientY, t0: e.timeStamp, slop: e.pointerType === 'mouse' ? 6 : 14, moved: false, total: 0, samples: [{ t: e.timeStamp, total: 0 }] };
+      // capture right away so the release is seen even when it happens off the wheel
+      try { c.setPointerCapture(e.pointerId); } catch (err) {}
     });
     c.addEventListener('pointermove', function (e) {
-      if (!drag || e.pointerId !== drag.id || self.isSpinning()) return;
+      if (!drag || e.pointerId !== drag.id) return;
+      if (self.isSpinning() || (e.pointerType === 'mouse' && !(e.buttons & 1))) { reset(); return; }
       var a = angleOf(e), d = a - drag.a;
       d = Math.atan2(Math.sin(d), Math.cos(d));
       drag.a = a;
@@ -444,7 +450,6 @@
         if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < drag.slop) return;
         drag.moved = true;
         self.dragging = true;
-        try { c.setPointerCapture(e.pointerId); } catch (err) {}
         self.stopDemo();
         if (self.hooks.onDragStart) self.hooks.onDragStart();
       }
@@ -459,9 +464,8 @@
     function end(e) {
       if (!drag || e.pointerId !== drag.id) return;
       var d = drag;
-      drag = null;
+      reset();
       if (!d.moved) return;
-      self.dragging = false;
       self.dragEndAt = now();
       if (e.type !== 'pointerup' || !self.hooks.onFlick) return;
       // a short, small wobble was meant as a tap: spin as a click would
@@ -473,6 +477,7 @@
     }
     c.addEventListener('pointerup', end);
     c.addEventListener('pointercancel', end);
+    c.addEventListener('lostpointercapture', end);
   };
   // A click that ends a drag must not also start a spin.
   Wheel.prototype.justDragged = function () { return this.dragging || now() - this.dragEndAt < 350; };
@@ -683,7 +688,7 @@
     g.drawImage(this.cache, -px / 2, -px / 2);
     g.restore();
     g.drawImage(this.overlay, 0, 0);
-    g.drawImage(this.pointerSprite(this.pointerColor()), Math.round((C + R - SPRITE_X) * k), Math.round((C - SPRITE_H / 2) * k));
+    g.drawImage(this.pointerSprite(this.pointerColor()), Math.round((POINTER_X - SPRITE_X) * k), Math.round((C - SPRITE_H / 2) * k));
   };
 
   // Draws a still thumbnail of a wheel config into `canvas` (gallery, saved wheels, share themes).
