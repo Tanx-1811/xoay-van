@@ -2,12 +2,13 @@
 (function () {
   'use strict';
 
-  var DEFAULT_ENTRIES = ['Ali', 'Beatriz', 'Charles', 'Diya', 'Eric', 'Fatima', 'Gabriel', 'Hanna'];
-  var DEFAULT_COLORS = ['#5DADE2', '#82E0AA', '#F7DC6F', '#AF7AC5'];
+  var DEFAULT_ENTRIES = ['An', 'Bình', 'Chi', 'Dũng', 'Giang', 'Hà', 'Khoa', 'Linh'];
+  // Signature palette: son (vermilion), nghệ (marigold), ngọc (jade), kem (cream), chàm (indigo).
+  var DEFAULT_COLORS = ['#D9432F', '#F4B23E', '#1F7A6A', '#F5E6C8', '#2E3A6E'];
   var PALETTE_SLOTS = 6;
   var NO_COLOR = '#CCCCCC'; // used when every palette slot is unchecked
 
-  // Same field names as the original .wheel format, so files can be exchanged.
+  // Same field names as the common .wheel format, so files can be exchanged with other wheel apps.
   function defaultConfig() {
     return {
       title: '',
@@ -61,8 +62,22 @@
   var HUB_SIZES = { XS: 0.01, S: 0.2, M: 0.3, L: 0.4, XL: 0.5, XXL: 0.6 };
 
   var THEMES = [
+    { group: 'Bản sắc Việt', themes: [
+      ['Xoay Vần', DEFAULT_COLORS],
+      ['Sơn mài', ['#8E1B12', '#C8962E', '#1A1210', '#E8C77A', '#5B2A16']],
+      ['Tết', ['#D7261E', '#F7C531', '#FDE9B5', '#B31217', '#F59E1B']],
+      ['Hội An', ['#F2A33A', '#E2572C', '#F7D774', '#2F6E73', '#A63A2B', '#F5E3B8']],
+      ['Hạ Long', ['#0E5E6F', '#3AA0A8', '#A8DADC', '#F1FAEE', '#457B9D']],
+      ['Sen hồng', ['#F4A6B8', '#E86A8E', '#FBE3E8', '#7FB069', '#3E6B48']],
+      ['Áo dài', ['#B5172F', '#F0E1C6', '#1F3B73', '#E9B44C', '#7A1C4B']],
+      ['Cà phê sữa', ['#3B2416', '#6F4E37', '#A67B5B', '#D9BFA0', '#F3E5D0']],
+      ['Lúa chín', ['#E8C547', '#C9A227', '#7FA043', '#4E7D32', '#F2E3A1']],
+      ['Gốm Bát Tràng', ['#1E3F8A', '#F4F1E8', '#3E64B5', '#DCE3F0', '#16295C']],
+      ['Trung thu', ['#F28C28', '#FFD166', '#C0392B', '#2C3E66', '#FFF1C1']],
+      ['Tranh Đông Hồ', ['#C0392B', '#E8B04B', '#2E7D5B', '#1D3557', '#F1E4C9']]
+    ] },
     { group: "General", themes: [
-      ["Default", ['#5DADE2', '#82E0AA', '#F7DC6F', '#AF7AC5']],
+      ["Pastel", ['#5DADE2', '#82E0AA', '#F7DC6F', '#AF7AC5']],
       ["Classic", ['#3369E8', '#D50F25', '#EEB211', '#009925']],
       ["The world stands with Ukraine", ['#0057B8', '#FFD700']]
     ] },
@@ -198,6 +213,14 @@
     ['read-winner-sound', 'Đọc to kết quả (Giọng 1)'], ['read-winner-sound-2', 'Đọc to kết quả (Giọng 2)']
   ];
 
+  // Wheel fonts (Google Fonts, all with Vietnamese glyphs): [family, canvas weight, css2 query or null if preloaded].
+  var WHEEL_FONTS = [
+    ['', '600', null], ['Fraunces', '600', null], ['Baloo 2', '600', 'Baloo+2:wght@600'], ['Montserrat', '700', 'Montserrat:wght@700'],
+    ['Comfortaa', '700', 'Comfortaa:wght@700'], ['Playfair Display', '700', 'Playfair+Display:wght@700'], ['Patrick Hand', '400', 'Patrick+Hand'],
+    ['Pangolin', '400', 'Pangolin'], ['Itim', '400', 'Itim'], ['Dancing Script', '700', 'Dancing+Script:wght@700'],
+    ['Lobster', '400', 'Lobster'], ['Pacifico', '400', 'Pacifico'], ['Bangers', '400', 'Bangers']
+  ];
+
   var TEXT_DISPLAY = [['never', 'Luôn hiển thị văn bản trên bánh xe'], ['always', 'Luôn ẩn văn bản trên bánh xe'], ['on-image', 'Ẩn văn bản nếu có hình ảnh']];
 
   // Built-in wheel background pictures, drawn procedurally by js/app.js (no image files).
@@ -206,9 +229,14 @@
     ['marble', 'Đá cẩm thạch'], ['citrus', 'Lát cam'], ['pool', 'Nước hồ bơi'], ['candy', 'Kẹo xoắn']
   ];
 
-  // "Bộ sưu tập": built-in example wheels (the original gallery is a server-side catalogue).
+  // "Bộ sưu tập": built-in example wheels.
   function range(a, b) { var r = []; for (var i = a; i <= b; i++) r.push(String(i)); return r; }
   var GALLERY = [
+    { id: 'lixi', title: 'Lì xì đầu năm', desc: 'Bốc lì xì may mắn ngày Tết', entries: ['10.000đ', '20.000đ', '50.000đ', '100.000đ', '200.000đ', '500.000đ', 'Lời chúc', 'Thêm lượt'], theme: 'Tết' },
+    { id: 'icebreak', title: 'Câu hỏi làm quen', desc: 'Khởi động buổi họp hoặc lớp học', entries: ['Món ăn yêu thích', 'Nơi muốn đến', 'Phim gần đây', 'Sở thích bí mật', 'Kỷ niệm đáng nhớ', 'Siêu năng lực', 'Bài hát ruột', 'Ước mơ hồi nhỏ'], theme: 'Hội An' },
+    { id: 'punish', title: 'Hình phạt vui', desc: 'Dành cho người thua trò chơi', entries: ['Hát một bài', 'Nhảy 30 giây', 'Kể chuyện cười', 'Chống đẩy 10 cái', 'Gọi điện cho mẹ', 'Bắt chước con vật', 'Khen từng người', 'Được miễn!'], theme: 'Circus' },
+    { id: 'subjects', title: 'Môn học', desc: 'Hôm nay ôn môn nào trước?', entries: ['Toán', 'Ngữ văn', 'Tiếng Anh', 'Vật lý', 'Hóa học', 'Sinh học', 'Lịch sử', 'Địa lý'], theme: 'Gốm Bát Tràng' },
+    { id: 'weekend', title: 'Cuối tuần đi đâu?', desc: 'Kế hoạch cho hai ngày nghỉ', entries: ['Cà phê sách', 'Leo núi', 'Xem phim', 'Đi biển', 'Về quê', 'Nấu ăn ở nhà', 'Đi chợ đêm', 'Ngủ nướng'], theme: 'Hạ Long' },
     { id: 'yes-no', title: 'Có hay không?', desc: 'Câu trả lời nhanh cho mọi câu hỏi', entries: ['Có', 'Không'], theme: 'Classic' },
     { id: 'coin', title: 'Tung đồng xu', desc: 'Sấp hay ngửa', entries: ['Sấp', 'Ngửa'], colors: ['#F7DC6F', '#AAB7B8'] },
     { id: 'dice', title: 'Xúc xắc', desc: 'Gieo một con xúc xắc 6 mặt', entries: range(1, 6), theme: 'Playground' },
@@ -246,6 +274,7 @@
     DURING_SOUNDS: DURING_SOUNDS,
     AFTER_SOUNDS: AFTER_SOUNDS,
     TEXT_DISPLAY: TEXT_DISPLAY,
+    WHEEL_FONTS: WHEEL_FONTS,
     COVER_PICTURES: COVER_PICTURES,
     GALLERY: GALLERY
   };

@@ -2,14 +2,21 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Vòng Quay Tên | Công cụ chọn tên ngẫu nhiên</title>
-  <meta name="description" content="Vòng quay ngẫu nhiên miễn phí và dễ sử dụng. Nhập danh sách, bấm quay và chọn người chiến thắng ngẫu nhiên. Tùy chỉnh giao diện, lưu và chia sẻ bánh xe.">
-  <meta name="theme-color" content="#5DADE2">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Xoay Vần | Vòng quay may mắn công bằng</title>
+  <meta name="description" content="Xoay Vần là vòng quay may mắn miễn phí, đẹp và công bằng. Nhập danh sách, bấm hoặc vuốt để quay, chia nhóm ngẫu nhiên, lưu và chia sẻ bằng liên kết. Chạy hoàn toàn trên trình duyệt.">
+  <meta name="theme-color" content="#F4ECDD" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#120D0B" media="(prefers-color-scheme: dark)">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Xoay Vần · Vòng quay may mắn">
+  <meta property="og:description" content="Vòng quay ngẫu nhiên đậm chất Việt: công bằng tuyệt đối, vuốt để quay, chia nhóm, chạy cả khi offline.">
+  <meta property="og:image" content="img/icon-512.png">
   <link rel="icon" href="img/logo.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400&family=Roboto:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,500..800;1,9..144,500..800&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="css/app.css">
   <script>
@@ -23,27 +30,37 @@
   </script>
 </head>
 <body>
+  <a class="skip-link" href="#centerCol">Bỏ qua đến bánh xe</a>
   <header class="topbar" id="topbar">
-    <a class="brand" href="./" id="brandLink"><img src="img/logo.svg" alt="" width="38" height="38"><h1>Vòng Quay Tên</h1></a>
+    <a class="brand" href="./" id="brandLink" aria-label="Xoay Vần">
+      <img src="img/logo.svg" alt="" width="42" height="42">
+      <span class="brand-text"><span class="brand-name">Xoay Vần</span><span class="brand-tag">vòng quay may mắn</span></span>
+    </a>
     <nav class="tb-nav" id="tbNav" aria-label="Thanh công cụ">
       <button type="button" class="tb-btn js-hide-fs js-single" data-action="customize"><i class="fas fa-palette"></i><span>Tùy chỉnh</span></button>
       <button type="button" class="tb-btn js-hide-fs" data-action="new"><i class="fas fa-file"></i><span>Mới</span></button>
       <button type="button" class="tb-btn" data-action="open" title="Mở"><i class="fa fa-folder-open"></i><span class="js-hide-fs">Mở</span></button>
       <button type="button" class="tb-btn js-hide-fs" data-action="save"><i class="fa fa-save"></i><span>Lưu</span></button>
-      <button type="button" class="tb-btn js-hide-fs" data-action="share"><i class="fa fa-share-alt"></i><span>Chia sẻ</span></button>
-      <button type="button" class="tb-btn js-hide-fs" data-action="gallery"><i class="fa fa-search"></i><span>Bộ sưu tập</span></button>
+      <button type="button" class="tb-btn js-hide-fs" data-action="gallery"><i class="fa fa-shapes"></i><span>Bộ sưu tập</span></button>
+      <button type="button" class="tb-btn js-hide-fs js-single" data-action="teams"><i class="fas fa-people-group"></i><span>Chia nhóm</span></button>
+      <button type="button" class="tb-btn tb-accent js-hide-fs" data-action="share"><i class="fa fa-share-nodes"></i><span>Chia sẻ</span></button>
+      <span class="tb-sep js-hide-fs" aria-hidden="true"></span>
       <button type="button" class="tb-btn tb-icon js-fullscreen" id="btnFullscreen" data-action="fullscreen" aria-label="Toàn màn hình" title="Toàn màn hình"><i class="fas fa-expand js-fs-icon"></i></button>
+      <button type="button" class="tb-btn tb-icon js-hide-fs" data-action="theme" id="btnThemeToggle" aria-label="Đổi giao diện sáng/tối" title="Đổi giao diện sáng/tối"><i class="fas fa-circle-half-stroke js-theme-icon"></i></button>
       <div class="menu-anchor js-hide-fs">
-        <button type="button" class="tb-btn" id="btnMore" aria-haspopup="menu" aria-expanded="false"><span>Thêm</span><i class="fas fa-caret-down tb-caret"></i></button>
+        <button type="button" class="tb-btn" id="btnMore" aria-haspopup="menu" aria-expanded="false"><span>Thêm</span><i class="fas fa-chevron-down tb-caret"></i></button>
         <div class="menu menu-right" id="moreMenu" role="menu" hidden>
           <button type="button" class="menu-item" role="menuitem" data-action="faq"><i class="fa fa-question-circle"></i><span>FAQ</span></button>
+          <button type="button" class="menu-item" role="menuitem" data-action="shortcuts"><i class="fa-regular fa-keyboard"></i><span>Phím tắt</span></button>
           <hr class="menu-sep">
           <button type="button" class="menu-item js-single" role="menuitem" data-action="sheet"><i class="fa-solid fa-file-arrow-up"></i><span>Nhập bảng tính</span></button>
-          <button type="button" class="menu-item" role="menuitem" data-action="fairness"><i class="fas fa-balance-scale"></i><span>Kiểm tra độ ngẫu nhiên</span></button>
-          <button type="button" class="menu-item" role="menuitem" data-action="options"><i class="fas fa-cog"></i><span>Tùy chọn</span></button>
+          <button type="button" class="menu-item" role="menuitem" data-action="fairness"><i class="fas fa-scale-balanced"></i><span>Kiểm tra độ ngẫu nhiên</span></button>
+          <button type="button" class="menu-item" role="menuitem" data-action="options"><i class="fas fa-gear"></i><span>Tùy chọn</span></button>
+          <button type="button" class="menu-item" role="menuitem" data-action="language"><i class="fas fa-globe"></i><span class="js-lang-name">Tiếng Việt</span></button>
+          <hr class="menu-sep">
+          <a class="menu-item" role="menuitem" href="https://github.com/Tanx-1811/xoay-van" target="_blank" rel="noopener"><i class="fab fa-github"></i><span>Mã nguồn trên GitHub</span></a>
         </div>
       </div>
-      <button type="button" class="tb-btn js-hide-fs" data-action="language"><i class="fas fa-globe"></i><span class="js-lang-name">Tiếng Việt</span></button>
     </nav>
     <div class="menu-anchor tb-burger-wrap">
       <button type="button" class="tb-btn tb-icon tb-burger" id="btnBurger" aria-label="Menu" aria-haspopup="menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
@@ -52,14 +69,17 @@
         <button type="button" class="menu-item js-hide-fs" data-action="new"><i class="fas fa-file"></i><span>Mới</span></button>
         <button type="button" class="menu-item" data-action="open"><i class="fa fa-folder-open"></i><span>Mở</span></button>
         <button type="button" class="menu-item js-hide-fs" data-action="save"><i class="fa fa-save"></i><span>Lưu</span></button>
-        <button type="button" class="menu-item js-hide-fs" data-action="share"><i class="fa fa-share-alt"></i><span>Chia sẻ</span></button>
-        <button type="button" class="menu-item" data-action="gallery"><i class="fa fa-search"></i><span>Bộ sưu tập</span></button>
+        <button type="button" class="menu-item js-hide-fs" data-action="share"><i class="fa fa-share-nodes"></i><span>Chia sẻ</span></button>
+        <button type="button" class="menu-item" data-action="gallery"><i class="fa fa-shapes"></i><span>Bộ sưu tập</span></button>
+        <button type="button" class="menu-item js-single" data-action="teams"><i class="fas fa-people-group"></i><span>Chia nhóm</span></button>
         <button type="button" class="menu-item js-fullscreen" data-action="fullscreen"><i class="fas fa-expand js-fs-icon"></i><span>Toàn màn hình</span></button>
-        <button type="button" class="menu-item" data-action="options"><i class="fas fa-cog"></i><span>Tùy chọn</span></button>
+        <hr class="menu-sep">
+        <button type="button" class="menu-item" data-action="theme"><i class="fas fa-circle-half-stroke js-theme-icon"></i><span>Đổi giao diện sáng/tối</span></button>
+        <button type="button" class="menu-item" data-action="options"><i class="fas fa-gear"></i><span>Tùy chọn</span></button>
         <button type="button" class="menu-item" data-action="language"><i class="fas fa-globe"></i><span>Ngôn ngữ</span></button>
-        <button type="button" class="menu-item" data-action="faq"><i class="fa fa-question-circle"></i><span>FAQ</span></button>
         <button type="button" class="menu-item js-single" data-action="sheet"><i class="fa-solid fa-file-arrow-up"></i><span>Nhập bảng tính</span></button>
-        <button type="button" class="menu-item" data-action="fairness"><i class="fas fa-balance-scale"></i><span>Kiểm tra độ ngẫu nhiên</span></button>
+        <button type="button" class="menu-item" data-action="fairness"><i class="fas fa-scale-balanced"></i><span>Kiểm tra độ ngẫu nhiên</span></button>
+        <button type="button" class="menu-item" data-action="faq"><i class="fa fa-question-circle"></i><span>FAQ</span></button>
       </div>
     </div>
   </header>
@@ -68,26 +88,41 @@
     <div class="page-bg" aria-hidden="true"></div>
     <section class="left-col" id="leftCol">
       <div class="title-block" id="titleBlock">
+        <span class="eyebrow">Bánh xe của bạn</span>
         <div class="title-row">
           <h2 class="wheel-title" id="wheelTitle"></h2>
-          <button type="button" class="round-btn btn-secondary js-hide-fs" id="btnEditTitle" aria-label="Chỉnh sửa tiêu đề và mô tả" title="Chỉnh sửa tiêu đề và mô tả"><i class="fas fa-pencil-alt"></i></button>
+          <button type="button" class="round-btn btn-secondary js-hide-fs" id="btnEditTitle" aria-label="Chỉnh sửa tiêu đề và mô tả" title="Chỉnh sửa tiêu đề và mô tả"><i class="fas fa-pen"></i></button>
         </div>
+        <button type="button" class="title-placeholder js-hide-fs" id="btnNameWheel">Đặt tên cho bánh xe…</button>
         <p class="wheel-desc" id="wheelDesc"></p>
+      </div>
+      <div class="card stage-card" id="stageCard">
+        <div class="stat-row">
+          <div class="stat"><b id="statEntries">0</b><span>mục trên bánh xe</span></div>
+          <div class="stat"><b id="statSpins">0</b><span>lượt đã quay</span></div>
+        </div>
+        <div class="last-win" id="lastWin" hidden>
+          <span class="lw-label"><i class="fas fa-crown"></i> Vừa trúng</span>
+          <span class="lw-name" id="lastWinName"></span>
+        </div>
+        <button type="button" class="btn btn-primary btn-spin" id="btnSpinNow"><i class="fas fa-rotate-right"></i><span>Quay ngay</span></button>
+        <p class="hint"><i class="fas fa-hand-pointer"></i><span>Mẹo: kéo hoặc vuốt bánh xe để tự tay quay. Vuốt ngược để quay chiều ngược lại.</span></p>
       </div>
       <div class="shared-info" id="sharedInfo">
         <div class="card shared-card">
+          <span class="eyebrow">Bánh xe được chia sẻ</span>
           <h2 class="shared-title" id="sharedTitle"></h2>
           <p class="wheel-desc" id="sharedDesc"></p>
         </div>
         <div class="card shared-card shared-controls">
           <button type="button" class="btn btn-primary" id="btnSharedCopy"><i class="far fa-clone"></i><span>Sao chép bánh xe này</span></button>
-          <button type="button" class="btn btn-primary" id="btnSharedOwn"><i class="fas fa-pencil-alt"></i><span>Tạo bánh xe của riêng bạn</span></button>
-          <label class="mute-toggle" title="Âm thanh"><i class="fas fa-volume-mute"></i><span class="switch"><input type="checkbox" id="sharedMute" aria-label="Âm thanh"><span></span></span><i class="fas fa-volume-up"></i></label>
+          <button type="button" class="btn btn-primary" id="btnSharedOwn"><i class="fas fa-pen"></i><span>Tạo bánh xe của riêng bạn</span></button>
+          <label class="mute-toggle" title="Âm thanh"><i class="fas fa-volume-xmark"></i><span class="switch"><input type="checkbox" id="sharedMute" aria-label="Âm thanh"><span></span></span><i class="fas fa-volume-high"></i></label>
         </div>
         <button type="button" class="btn btn-primary shared-spin-all" id="sharedSpinAll"><i class="fas fa-rotate-right"></i><span>Quay tất cả các bánh xe</span></button>
       </div>
     </section>
-    <section class="center-col" id="centerCol" aria-label="Bánh xe"></section>
+    <section class="center-col" id="centerCol" aria-label="Bánh xe" tabindex="-1"></section>
     <aside class="right-col" id="rightCol" aria-label="Trình chỉnh sửa">
       <button type="button" class="round-btn round-sm btn-secondary editor-toggle" id="btnHideEditor" aria-label="Ẩn trình chỉnh sửa" title="Ẩn trình chỉnh sửa"><i class="fas fa-chevron-right"></i></button>
       <div class="card editor-card" id="editorCard">
@@ -95,8 +130,8 @@
         <div class="tab-panels">
           <div class="tab-panel" id="entriesPane">
             <div class="tool-row">
-              <button type="button" class="btn btn-secondary btn-xs" id="btnShuffle"><i class="fas fa-random"></i><span>Xáo trộn</span></button>
-              <button type="button" class="btn btn-secondary btn-xs" id="btnSort"><i class="fas fa-sort-alpha-up"></i><span>Sắp xếp</span></button>
+              <button type="button" class="btn btn-secondary btn-xs" id="btnShuffle"><i class="fas fa-shuffle"></i><span>Xáo trộn</span></button>
+              <button type="button" class="btn btn-secondary btn-xs" id="btnSort"><i class="fas fa-arrow-down-a-z"></i><span>Sắp xếp</span></button>
               <div class="split menu-anchor">
                 <button type="button" class="btn btn-secondary btn-xs" id="btnAddImage"><i class="fas fa-image"></i><span>Thêm ảnh</span></button>
                 <button type="button" class="btn btn-secondary btn-xs split-caret" id="btnAddImageMenu" aria-label="Mở rộng &quot;Thêm ảnh&quot;" aria-haspopup="menu" aria-expanded="false"><i class="fas fa-caret-down"></i></button>
@@ -106,9 +141,9 @@
                   <button type="button" class="menu-item menu-item-tall" data-img="entry"><span class="menu-avatar av-slice"></span><span>Thêm hình ảnh làm mục nhập</span></button>
                 </div>
               </div>
-              <label class="check check-xs" id="advancedWrap"><input type="checkbox" id="chkAdvanced"><span>Nâng cao</span></label>
+              <label class="check check-xs push-right" id="advancedWrap"><input type="checkbox" id="chkAdvanced"><span>Nâng cao</span></label>
             </div>
-            <div class="basic-editor" id="basicEditor" contenteditable="true" spellcheck="false" autocomplete="off" translate="no" role="textbox" aria-multiline="true" aria-label="Danh sách mục, mỗi dòng một mục"></div>
+            <div class="basic-editor" id="basicEditor" contenteditable="true" spellcheck="false" autocomplete="off" translate="no" role="textbox" aria-multiline="true" aria-label="Danh sách mục, mỗi dòng một mục" data-placeholder="Nhập mỗi dòng một tên…"></div>
             <div class="adv-editor" id="advEditor" hidden>
               <ul class="adv-list" id="advList"></ul>
               <div class="adv-foot">
@@ -134,75 +169,96 @@
           </div>
           <div class="tab-panel" id="resultsPane" hidden>
             <div class="tool-row">
-              <button type="button" class="btn btn-grey btn-xs" id="btnSortResults"><i class="fas fa-sort-alpha-up"></i><span>Sắp xếp</span></button>
-              <button type="button" class="btn btn-grey btn-xs" id="btnClearResults"><i class="fas fa-times"></i><span>Xóa danh sách</span></button>
+              <button type="button" class="btn btn-grey btn-xs" id="btnSortResults"><i class="fas fa-arrow-down-a-z"></i><span>Sắp xếp</span></button>
+              <button type="button" class="btn btn-grey btn-xs" id="btnClearResults"><i class="fas fa-xmark"></i><span>Xóa danh sách</span></button>
               <button type="button" class="btn btn-grey btn-xs" id="btnExportResults"><i class="fas fa-file-arrow-down"></i><span>Xuất kết quả</span></button>
             </div>
-            <div class="basic-editor results-box" id="resultsBox" aria-label="Kết quả" aria-readonly="true"></div>
+            <div class="results-summary" id="resultsSummary"></div>
+            <ol class="result-list" id="resultsBox" aria-label="Kết quả"></ol>
           </div>
         </div>
-        <div class="app-info"><span>Phiên bản <span id="appVersion">1.0</span></span><button type="button" class="link" id="btnChangelog">Changelog</button></div>
+        <div class="app-info"><span>Xoay Vần <span id="appVersion">2.0</span></span><button type="button" class="link" id="btnChangelog">Có gì mới?</button></div>
       </div>
     </aside>
     <button type="button" class="round-btn round-sm btn-primary show-editor" id="btnShowEditor" aria-label="Hiện trình chỉnh sửa" title="Hiện trình chỉnh sửa"><i class="fas fa-chevron-left"></i></button>
   </main>
 
   <div class="below" id="below">
-    <hr class="below-hr">
-    <section class="about" id="about">
-      <div class="about-col">
-        <article class="card about-card">
-          <h2><img src="img/logo.svg" alt="" width="32" height="32">Vòng quay dùng để làm gì?</h2>
-          <p>Bất cứ khi nào cần một lựa chọn ngẫu nhiên mà ai cũng thấy công bằng:</p>
-          <ul>
-            <li>Gọi tên học sinh trả lời câu hỏi tiếp theo trong lớp.</li>
-            <li>Chọn khách hàng may mắn nhận quà trong chương trình khuyến mãi hằng tháng.</li>
-            <li>Bốc thăm người trúng thưởng trong buổi thuyết trình hoặc sự kiện.</li>
-            <li>Xếp thứ tự phát biểu trong cuộc họp đầu ngày.</li>
-            <li>Có quá nhiều việc cần làm? Cho hết lên bánh xe và để nó chọn việc làm trước.</li>
-            <li>Đi chơi với bạn bè: quay để chọn ai đi trước trong trò chơi.</li>
-            <li>Cả nhóm không quyết được tối nay ăn gì? Quay một vòng là xong.</li>
-          </ul>
-        </article>
-        <article class="card about-card">
-          <h2><img src="img/logo.svg" alt="" width="32" height="32">Cách sử dụng</h2>
-          <p>Rất đơn giản: nhập các mục vào khung bên phải bánh xe, mỗi dòng một mục, rồi bấm vào bánh xe để quay và nhận một người chiến thắng ngẫu nhiên. Bạn cũng có thể nhấn <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.</p>
-          <p>Muốn đổi màu, âm thanh hay thời gian quay, bấm <button type="button" class="chip-inline" data-action="customize"><i class="fas fa-palette"></i> Tùy chỉnh</button> ở đầu trang.</p>
-        </article>
-      </div>
-      <div class="about-col">
-        <article class="card about-card">
-          <h2><img src="img/logo.svg" alt="" width="32" height="32">Tính năng</h2>
-          <ul>
-            <li><b>Nhiều bánh xe:</b> tối đa 10 bánh xe trên cùng một trang, quay tất cả một lượt.</li>
-            <li><b>Trọng số:</b> ở chế độ Nâng cao, tăng trọng số để một mục chiếm phần lớn hơn và dễ trúng hơn.</li>
-            <li><b>Hình ảnh:</b> dùng ảnh làm mục, làm ảnh trung tâm hoặc làm hình nền cho bánh xe.</li>
-            <li><b>Chủ đề màu:</b> 82 bảng màu có sẵn, hoặc tự chọn tối đa 6 màu.</li>
-            <li><b>Âm thanh và pháo giấy:</b> tiếng tích tắc, nhạc khi quay, hàng chục âm thanh khi có người thắng, kể cả đọc to kết quả.</li>
-            <li><b>Chia sẻ:</b> tạo đường link chứa toàn bộ bánh xe để gửi cho người khác.</li>
-            <li><b>Nhập bảng tính:</b> dán một cột từ Google Sheets hoặc Excel để tạo danh sách trong vài giây.</li>
-          </ul>
-        </article>
-        <article class="card about-card">
-          <h2><img src="img/logo.svg" alt="" width="32" height="32">Dữ liệu của tôi có được giữ riêng tư không?</h2>
-          <p>Có. Các mục bạn nhập chỉ được lưu trong bộ nhớ của trình duyệt trên máy bạn, không gửi đến server nào. Khi bạn tạo link chia sẻ, dữ liệu bánh xe được nén ngay trong đường link.</p>
-        </article>
-      </div>
-      <div class="about-col">
-        <article class="card about-card" id="faq">
-          <h2><img src="img/logo.svg" alt="" width="32" height="32">Bánh xe có thật sự ngẫu nhiên?</h2>
-          <p>Có, và bạn có thể tự kiểm chứng: chạy 10.000 lượt quay mô phỏng chỉ trong vài giây và xem kết quả.</p>
-          <p><button type="button" class="btn btn-primary" data-action="fairness">Chạy 10.000 lượt quay</button></p>
-          <p><b>Cách đảm bảo ngẫu nhiên:</b> bánh xe không dùng hàm <code>Math.random()</code> thông thường mà dùng <code>crypto.getRandomValues()</code>, bộ sinh số ngẫu nhiên an toàn có sẵn trong trình duyệt. Số ngẫu nhiên này quyết định góc dừng của bánh xe trong mô phỏng vật lý, nên kết quả không thể đoán trước.</p>
-          <p><b>Sao kết quả lại giống lần trước?</b> Với ngẫu nhiên thật, trùng kết quả là chuyện bình thường. Với 10 mục, xác suất mục vừa thắng lại thắng ở lượt sau là 10%. Nếu không muốn ai thắng hai lần, bấm <b>Xóa</b> trong cửa sổ người thắng.</p>
-        </article>
+    <section class="section features" id="about">
+      <header class="section-head">
+        <span class="eyebrow">Vì sao chọn Xoay Vần</span>
+        <h2>Một vòng quay đẹp, công bằng và của riêng bạn</h2>
+        <p>Gọi tên học sinh, bốc thăm trúng thưởng, chọn món tối nay hay chia đội đá bóng: không quảng cáo, không đăng nhập, không gửi dữ liệu đi đâu cả.</p>
+      </header>
+      <div class="feature-grid">
+        <article class="feature"><span class="f-icon"><i class="fas fa-scale-balanced"></i></span><h3>Công bằng tuyệt đối</h3><p>Góc dừng được chọn bằng bộ sinh số ngẫu nhiên mật mã của trình duyệt. Bạn có thể tự kiểm chứng bằng 10.000 lượt quay mô phỏng.</p></article>
+        <article class="feature"><span class="f-icon"><i class="fas fa-hand-pointer"></i></span><h3>Kéo, vuốt hoặc bấm</h3><p>Tự tay xoay bánh xe bằng chuột hay ngón tay. Vuốt mạnh để quay, vuốt ngược để quay chiều ngược lại.</p></article>
+        <article class="feature"><span class="f-icon"><i class="fas fa-people-group"></i></span><h3>Chia nhóm trong một giây</h3><p>Chia cả lớp hay cả phòng thành các nhóm đều nhau, rồi sao chép hoặc tải kết quả về chỉ với một cú bấm.</p></article>
+        <article class="feature"><span class="f-icon"><i class="fas fa-fan"></i></span><h3>Đậm bản sắc Việt</h3><p>Bảng màu Tết, Hội An, Sơn mài, Áo dài, Gốm Bát Tràng… cùng 13 phông chữ hiển thị tiếng Việt chuẩn dấu.</p></article>
+        <article class="feature"><span class="f-icon"><i class="fas fa-layer-group"></i></span><h3>Nhiều bánh xe cùng lúc</h3><p>Tối đa 10 bánh xe trên một trang, quay tất cả một lượt. Trọng số, hình ảnh và màu riêng cho từng mục.</p></article>
+        <article class="feature"><span class="f-icon"><i class="fas fa-music"></i></span><h3>Âm thanh và pháo giấy</h3><p>Hơn 30 hiệu ứng âm thanh tự tổng hợp, nhạc nền khi quay và cả giọng đọc to tên người thắng.</p></article>
+        <article class="feature"><span class="f-icon"><i class="fas fa-user-shield"></i></span><h3>Riêng tư tuyệt đối</h3><p>Mọi thứ nằm trong trình duyệt của bạn. Liên kết chia sẻ chứa sẵn bánh xe đã nén, không máy chủ nào lưu lại.</p></article>
+        <article class="feature"><span class="f-icon"><i class="fas fa-plane-slash"></i></span><h3>Dùng cả khi offline</h3><p>Cài Xoay Vần lên màn hình chính như một ứng dụng. Sau lần mở đầu tiên, bánh xe vẫn quay khi mất mạng.</p></article>
       </div>
     </section>
-    <hr class="below-hr">
+
+    <section class="section howto">
+      <header class="section-head">
+        <span class="eyebrow">Cách sử dụng</span>
+        <h2>Ba bước là xong</h2>
+      </header>
+      <ol class="steps">
+        <li><span class="step-n">1</span><h3>Nhập danh sách</h3><p>Gõ mỗi dòng một tên vào khung bên phải, hoặc dán cả cột từ Excel, Google Sheets.</p></li>
+        <li><span class="step-n">2</span><h3>Quay</h3><p>Bấm vào bánh xe, kéo để tự tay xoay hoặc nhấn Ctrl + Enter.</p></li>
+        <li><span class="step-n">3</span><h3>Công bố</h3><p>Xem người thắng, xóa khỏi vòng để không ai trúng hai lần, rồi quay tiếp.</p></li>
+      </ol>
+    </section>
+
+    <section class="section faq" id="faq">
+      <header class="section-head">
+        <span class="eyebrow">FAQ</span>
+        <h2>Câu hỏi thường gặp</h2>
+      </header>
+      <div class="faq-list">
+        <details open>
+          <summary>Bánh xe có thật sự ngẫu nhiên?</summary>
+          <p>Có. Xoay Vần không dùng Math.random() mà dùng crypto.getRandomValues(), bộ sinh số ngẫu nhiên an toàn có sẵn trong trình duyệt. Con số này quyết định góc dừng trong mô phỏng vật lý nên kết quả không thể đoán trước.</p>
+          <p><button type="button" class="btn btn-primary" data-action="fairness"><i class="fas fa-flask"></i><span>Chạy 10.000 lượt quay thử</span></button></p>
+        </details>
+        <details>
+          <summary>Kéo hay vuốt bánh xe có ăn gian được không?</summary>
+          <p>Không. Cú vuốt chỉ quyết định chiều quay. Ngay khi bánh xe bắt đầu chậm lại, góc dừng vẫn được bốc ngẫu nhiên như mọi lần quay khác, nên tay nhanh hay chậm đều không đổi được xác suất.</p>
+        </details>
+        <details>
+          <summary>Sao kết quả lại giống lần trước?</summary>
+          <p>Với ngẫu nhiên thật, trùng kết quả là chuyện bình thường. Với 10 mục, người vừa thắng có 10% khả năng thắng tiếp ở lượt sau. Nếu không muốn ai thắng hai lần, hãy bấm nút Xóa trong cửa sổ người thắng.</p>
+        </details>
+        <details>
+          <summary>Dữ liệu của tôi có được giữ riêng tư không?</summary>
+          <p>Có. Các mục bạn nhập chỉ được lưu trong bộ nhớ trình duyệt trên máy bạn, không gửi đến máy chủ nào. Khi tạo liên kết chia sẻ, dữ liệu bánh xe được nén ngay trong đường liên kết.</p>
+        </details>
+        <details>
+          <summary>Có dùng được khi không có mạng?</summary>
+          <p>Có. Mở trang một lần khi có mạng, sau đó Xoay Vần chạy được cả khi offline. Trên điện thoại, chọn "Thêm vào màn hình chính" để dùng như một ứng dụng.</p>
+        </details>
+        <details>
+          <summary>Mở được tệp .wheel từ trang khác không?</summary>
+          <p>Được. Xoay Vần đọc định dạng .wheel phổ biến của các trang vòng quay khác, cũng như tệp JSON. Bạn cũng có thể lưu bánh xe thành tệp để mang sang máy khác.</p>
+        </details>
+      </div>
+    </section>
+
     <footer class="footer">
-      <button type="button" class="link-plain" data-action="faq"><i class="fa fa-question-circle"></i> FAQ</button>
-      <button type="button" class="link-plain" data-action="fairness"><i class="fas fa-balance-scale"></i> Kiểm tra độ ngẫu nhiên</button>
-      <span class="build">Vòng Quay Tên · chạy hoàn toàn trên trình duyệt</span>
+      <div class="footer-brand">
+        <img src="img/logo.svg" alt="" width="36" height="36">
+        <div><b>Xoay Vần</b><span>Vòng quay may mắn, chạy hoàn toàn trên trình duyệt.</span></div>
+      </div>
+      <nav class="footer-links" aria-label="Liên kết">
+        <button type="button" class="link-plain" data-action="faq"><i class="fa fa-question-circle"></i> FAQ</button>
+        <button type="button" class="link-plain" data-action="fairness"><i class="fas fa-scale-balanced"></i> Kiểm tra độ ngẫu nhiên</button>
+        <button type="button" class="link-plain" data-action="shortcuts"><i class="fa-regular fa-keyboard"></i> Phím tắt</button>
+        <a class="link-plain" href="https://github.com/Tanx-1811/xoay-van" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a>
+      </nav>
     </footer>
   </div>
 
@@ -344,6 +400,7 @@
             </div>
             <label class="check"><input type="checkbox" data-cfg="pageGradient"><span>Hiển thị một dải màu trên trang</span></label>
             <select class="field-select" data-cfg="hideEntryText" id="cfgTextDisplay" aria-label="Hiển thị văn bản"></select>
+            <div class="cfg-row"><label class="cfg-label" for="cfgFont">Phông chữ</label><select class="field-select" id="cfgFont" data-cfg="font"></select></div>
           </div>
           <div class="col-flex">
             <label class="check"><input type="checkbox" data-cfg="drawOutlines"><span>Đường viền</span></label>
@@ -364,6 +421,7 @@
     <div class="winner-body" id="winnerBody"></div>
     <div class="dlg-actions">
       <button type="button" class="btn btn-flat" data-close="close" id="btnWinnerClose">Đóng</button>
+      <button type="button" class="btn btn-secondary push-left-sm" id="btnWinnerAgain"><i class="fas fa-rotate-right"></i><span>Quay tiếp</span></button>
       <button type="button" class="btn btn-primary" id="btnWinnerRemove">Xóa</button>
       <button type="button" class="btn btn-primary" id="btnWinnerRemoveAll" hidden>Xóa tất cả các lần xuất hiện</button>
       <button type="button" class="btn btn-primary" id="btnWinnerHide" hidden>Ẩn</button>
@@ -473,6 +531,14 @@
         <p>Liên kết đến bánh xe này kèm theo tên, màu sắc và cài đặt hiện tại:</p>
         <div class="copy-row"><input class="field-input standout" id="shareUrl" readonly aria-label="Liên kết"><button type="button" class="btn btn-positive" id="btnCopyShare"><i class="fas fa-copy"></i><span>Sao chép liên kết</span></button></div>
         <p class="cfg-small" id="shareWarn" hidden></p>
+        <div class="share-extra">
+          <div class="qr-box" id="shareQr" hidden></div>
+          <div class="share-side">
+            <p class="cfg-small">Quét mã QR để mở bánh xe trên điện thoại, rất tiện khi trình chiếu trong lớp học hay sự kiện.</p>
+            <button type="button" class="btn btn-secondary" id="btnNativeShare" hidden><i class="fas fa-share-nodes"></i><span>Gửi qua ứng dụng khác</span></button>
+            <button type="button" class="btn btn-secondary" id="btnDownloadQr" hidden><i class="fas fa-qrcode"></i><span>Tải mã QR</span></button>
+          </div>
+        </div>
       </section>
     </div>
     <div class="dlg-actions">
@@ -632,7 +698,7 @@
   </dialog>
 
   <dialog class="dlg dlg-800" id="dlgFairness">
-    <div class="dlg-head"><h2><i class="fas fa-balance-scale"></i> Kiểm toán công bằng và minh bạch</h2><button type="button" class="icon-btn" data-close aria-label="Đóng"><i class="fas fa-times"></i></button></div>
+    <div class="dlg-head"><h2><i class="fas fa-scale-balanced"></i> Kiểm toán công bằng và minh bạch</h2><button type="button" class="icon-btn" data-close aria-label="Đóng"><i class="fas fa-times"></i></button></div>
     <div class="dlg-body">
       <p>Công cụ này quay bánh xe hiện tại thật nhiều lần bằng đúng mô phỏng vật lý của bánh xe (góc dừng được chọn bằng <code>crypto.getRandomValues</code>), rồi đếm số lần mỗi ô thắng. Với số lượt quay lớn, số lần thắng thực tế sẽ rất gần với kỳ vọng.</p>
       <div class="row-gap">
@@ -650,9 +716,57 @@
   </dialog>
 
   <dialog class="dlg dlg-640" id="dlgChangelog">
-    <div class="dlg-head"><h2>Changelog</h2><button type="button" class="icon-btn" data-close aria-label="Đóng"><i class="fas fa-times"></i></button></div>
+    <div class="dlg-head"><h2><i class="fas fa-wand-magic-sparkles"></i> Có gì mới?</h2><button type="button" class="icon-btn" data-close aria-label="Đóng"><i class="fas fa-times"></i></button></div>
     <div class="dlg-body prose">
-      <p><b>1.0</b> · Bản đầu tiên: bánh xe với vật lý quay giống bản gốc, chế độ Nâng cao (màu, ảnh, trọng số, ẩn mục), tối đa 10 bánh xe, Tùy chỉnh 3 tab, 82 chủ đề màu, âm thanh tổng hợp, pháo giấy, lưu vào trình duyệt hoặc tệp <code>.wheel</code>, chia sẻ bằng liên kết, bộ sưu tập mẫu, nhập bảng tính, kiểm tra độ ngẫu nhiên, giao diện sáng/tối, tiếng Việt và tiếng Anh.</p>
+      <h3 class="cl-h">2.0 · Xoay Vần</h3>
+      <ul class="cl-list">
+        <li>Tên mới và diện mạo mới lấy cảm hứng từ tranh sơn mài: đen sơn, đỏ son, vàng nhũ; chế độ sáng màu giấy dó.</li>
+        <li>Bánh xe mới: viền vàng 24 bóng đèn, kim chỉ đính đá đổi màu theo ô, trục hoa thị và hiệu ứng làm nổi ô thắng.</li>
+        <li>Kéo hoặc vuốt để tự tay quay, quay được cả hai chiều.</li>
+        <li>Chia nhóm ngẫu nhiên, mã QR cho liên kết chia sẻ, nút Quay tiếp và thống kê lượt quay.</li>
+        <li>12 bảng màu Bản sắc Việt, 13 phông chữ cho bánh xe, 5 mẫu mới trong bộ sưu tập.</li>
+        <li>Cài như ứng dụng, dùng được khi offline, thêm phím tắt.</li>
+      </ul>
+      <h3 class="cl-h">1.0 · Vòng Quay Tên</h3>
+      <p>Bản đầu tiên: chế độ Nâng cao (màu, ảnh, trọng số, ẩn mục), tối đa 10 bánh xe, 82 chủ đề màu, âm thanh tổng hợp, pháo giấy, lưu và chia sẻ bằng liên kết, nhập bảng tính, kiểm tra độ ngẫu nhiên, giao diện sáng/tối, tiếng Việt và tiếng Anh.</p>
+    </div>
+    <div class="dlg-actions"><button type="button" class="btn btn-primary" data-close>Đóng</button></div>
+  </dialog>
+
+  <dialog class="dlg dlg-800" id="dlgTeams">
+    <div class="dlg-head"><h2><i class="fas fa-people-group"></i> Chia nhóm ngẫu nhiên</h2><button type="button" class="icon-btn" data-close aria-label="Đóng"><i class="fas fa-times"></i></button></div>
+    <div class="dlg-body">
+      <p class="cfg-small">Các mục đang hiển thị trên bánh xe được xáo trộn bằng bộ sinh số ngẫu nhiên an toàn rồi chia đều vào từng nhóm.</p>
+      <div class="team-controls">
+        <div class="seg" role="radiogroup" aria-label="Cách chia">
+          <label class="seg-opt"><input type="radio" name="teamMode" value="count" checked><span>Số nhóm</span></label>
+          <label class="seg-opt"><input type="radio" name="teamMode" value="size"><span>Số người mỗi nhóm</span></label>
+        </div>
+        <div class="input-steps"><button type="button" id="teamDec" aria-label="-"><i class="fas fa-minus"></i></button><input type="number" class="field-input" id="teamN" min="1" max="50" value="2" aria-label="Số lượng"><button type="button" id="teamInc" aria-label="+"><i class="fas fa-plus"></i></button></div>
+        <span class="cfg-small" id="teamInfo"></span>
+      </div>
+      <div class="team-grid" id="teamGrid"></div>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-flat push-left" id="btnTeamCopy"><i class="fas fa-copy"></i><span>Sao chép</span></button>
+      <button type="button" class="btn btn-flat" id="btnTeamExport"><i class="fas fa-file-arrow-down"></i><span>Tải về</span></button>
+      <button type="button" class="btn btn-primary" id="btnTeamShuffle"><i class="fas fa-shuffle"></i><span>Chia lại</span></button>
+    </div>
+  </dialog>
+
+  <dialog class="dlg dlg-640" id="dlgShortcuts">
+    <div class="dlg-head"><h2><i class="fa-regular fa-keyboard"></i> Phím tắt</h2><button type="button" class="icon-btn" data-close aria-label="Đóng"><i class="fas fa-times"></i></button></div>
+    <div class="dlg-body">
+      <dl class="keys">
+        <dt><kbd>Ctrl</kbd> + <kbd>Enter</kbd></dt><dd>Quay tất cả bánh xe</dd>
+        <dt><kbd>Enter</kbd> / <kbd>Space</kbd></dt><dd>Quay bánh xe đang được chọn</dd>
+        <dt><kbd>Ctrl</kbd> + <kbd>S</kbd></dt><dd>Lưu bánh xe</dd>
+        <dt><kbd>Ctrl</kbd> + <kbd>O</kbd></dt><dd>Mở bánh xe</dd>
+        <dt><kbd>F</kbd></dt><dd>Bật hoặc tắt toàn màn hình</dd>
+        <dt><kbd>?</kbd></dt><dd>Hiện bảng phím tắt này</dd>
+        <dt><kbd>Esc</kbd></dt><dd>Đóng cửa sổ hoặc menu</dd>
+      </dl>
+      <p class="cfg-small">Kéo bánh xe bằng chuột hoặc ngón tay để tự xoay; thả tay khi đang vuốt nhanh để quay.</p>
     </div>
     <div class="dlg-actions"><button type="button" class="btn btn-primary" data-close>Đóng</button></div>
   </dialog>
@@ -662,6 +776,7 @@
   <input type="file" id="fileWheel" accept=".wheel,.json,application/json" hidden>
   <input type="file" id="fileCsv" accept=".csv,.tsv,.txt,text/csv,text/plain" hidden>
   <input type="file" id="fileImage" accept="image/*" hidden>
+  <noscript><p class="noscript">Xoay Vần cần JavaScript để chạy.</p></noscript>
 
   <script src="js/data.js"></script>
   <script src="js/i18n-en.js"></script>
@@ -674,5 +789,6 @@
   <script src="js/app.js"></script>
   <script src="js/editor.js"></script>
   <script src="js/dialogs.js"></script>
+  <script src="js/features.js"></script>
 </body>
 </html>
